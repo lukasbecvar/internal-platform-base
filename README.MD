@@ -8,6 +8,9 @@
 ## Dashboard preview
 ![Dashboard](.github/assets/preview.gif)
 
+## Usage example
+An example usage of this base is the [admin-suite](https://github.com/lukasbecvar/admin-suite)
+
 ## Description
 Base app template for building internal applications on symfony framework.
 This template includes components: login system, user management, logs, account settings, basic dashboard, and other essential features needed in app to application development — for example, for intranet, ERP systems, and similar use cases.
