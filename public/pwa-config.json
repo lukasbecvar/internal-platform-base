@@ -1,7 +1,7 @@
 {
     "name": "Internal platform",
     "short_name": "Internal platform",
-    "description": "Solution building internal systems",
+    "description": "Solution for building internal systems",
     "start_url": "/dashboard",
     "display": "standalone",
     "background_color": "#111927",
