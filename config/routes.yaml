@@ -1,0 +1,14 @@
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+
+# handle not found error (in prod env)
+when@prod:
+    catch_all:
+        path: /{any}
+        controller: App\Controller\ErrorController::errorHandle
+        methods: ['GET']
+        requirements:
+            any: .*

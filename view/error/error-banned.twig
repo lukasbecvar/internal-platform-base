@@ -1,0 +1,28 @@
+{% extends 'common/base.twig' %}
+
+{% block body %}
+<div class="flex flex-col justify-center items-center h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-gray-100">
+    <div class="text-center px-8 animate-popin">
+        <div class="text-amber-400 text-8xl mb-6">
+            <i class="fas fa-ban"></i>
+        </div>
+        <h2 class="text-5xl font-bold mb-4 text-white">Access Denied</h2>
+        <p class="text-xl text-gray-300 mb-8 max-w-lg mx-auto leading-relaxed">
+            {% if reason is defined and reason != 'no-reason' %}
+                You have been banned from accessing this service.<br/>
+                <span class="text-red-400 font-semibold">Reason:</span> <span class="text-red-300 font-semibold">{{ reason|e }}</span>
+            {% else %}
+                You have been banned from accessing this service.<br> Contact support for more information.
+            {% endif %}
+        </p>
+        {% if admin_contact is defined %}
+        <p class="text-lg text-gray-400 mb-8">
+            Contact: <a href="mailto:{{ admin_contact|e }}" class="text-blue-400 underline hover:text-blue-300 transition duration-300">{{ admin_contact|e }}</a>
+        </p>
+        {% endif %}
+        <a href={{ path('app_index') }} class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+            <i class="fas fa-arrow-left"></i> Back to Homepage
+        </a>
+    </div>
+</div>
+{% endblock %}

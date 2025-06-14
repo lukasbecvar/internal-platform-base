@@ -1,0 +1,29 @@
+# env files
+/.env.prod
+
+# bundles assets
+/public/bundles/
+
+# cache files
+/var
+
+# composer files
+/vendor/
+/composer.lock
+
+# phpunit files
+.phpunit.result.cache
+
+# php codesniffer cache
+/.phpcs-cache
+
+# npm files
+/node_modules/
+/public/assets/
+/package-lock.json
+
+# custom suite configs
+blocked-usernames.json
+
+# docker services files
+.docker/services

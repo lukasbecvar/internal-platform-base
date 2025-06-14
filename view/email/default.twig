@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal platform</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #ffffff;
+            background-color: #1e1e1e;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 20px auto;
+            border-radius: 8px;
+            background-color: #2d2d2d;
+            border: 1px solid #696969;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin: 0;
+            color: white;
+            position: relative;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+        h2::after {
+            left: 50%;
+            bottom: 0;
+            width: 50%;
+            height: 3px;
+            content: '';
+            position: absolute;
+            background-color: #ff5555;
+            transform: translateX(-50%);
+        }
+        .content {
+            padding: 15px;
+            color: #ffffff;
+            margin-top: 20px;
+            border-radius: 5px;
+            word-wrap: break-word;
+            background-color: #3d3d3d;
+        }
+        .footer {
+            color: #aaaaaa;
+            margin-top: 20px;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>{{ subject|e }}</h2>
+        </div>
+        <div class="content">
+            {{ message|e }}
+        </div>
+        <div class="footer">
+            <p>&copy; {{ time|e }} Internal platform. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

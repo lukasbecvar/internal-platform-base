@@ -1,0 +1,36 @@
+monolog:
+    handlers:
+        # exception log handler
+        exception:
+            type: stream
+            path: '%kernel.logs_dir%/exception.log'
+            level: error
+            channels: ['!event']
+            formatter: App\Formatter\MonologTimeFormatter
+
+        # exclude specific http codes from exception log
+        filtered:
+            type: fingers_crossed
+            action_level: error
+            handler: exception
+            excluded_http_codes: [403, 404, 405, 426, 503]
+
+when@dev:
+    monolog:
+        handlers:
+            main:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+                channels: ["!event"]
+                formatter: App\Formatter\MonologTimeFormatter
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine", "!console"]
+                formatter: App\Formatter\MonologTimeFormatter
+            stdout:
+                type: stream
+                level: error
+                path: 'php://stdout'
+                formatter: App\Formatter\MonologTimeFormatter

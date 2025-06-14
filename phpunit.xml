@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit 
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.4/phpunit.xsd" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    bootstrap="tests/bootstrap.php"
+    cacheResult="false"
+    colors="true" 
+>
+    <php>
+        <server name="APP_ENV" value="test" force="true"/>
+        <env name="KERNEL_CLASS" value="App\Kernel"/>
+        <env name="REMOTE_ADDR" value="127.0.0.1"/>
+        <env name="HTTP_USER_AGENT" value="test"/>
+    </php>
+
+    <testsuites>
+        <testsuite name="Project Test Suite">
+            <directory suffix=".php">./tests</directory>
+            <exclude>./tests/bootstrap.php</exclude>
+            <exclude>./tests/CustomTestCase.php</exclude>
+        </testsuite>
+    </testsuites>    
+    
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
+
+    <!-- ENABLE BETTER OUTPUT FORMATER -->
+    <extensions>
+        <bootstrap class="RobinIngelbrecht\PHPUnitPrettyPrint\PhpUnitExtension">
+            </bootstrap>
+    </extensions>
+</phpunit>

@@ -1,0 +1,31 @@
+# static code analyse with PHP CodeSniffer
+name: PHP-CodeSniffer
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  phpcodesniffer:
+    name: PHP CodeSniffer
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # setup php interpreter
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.4
+
+    # install backend dependencies
+    - name: Install backend dependencies
+      run: composer install --no-interaction --no-progress
+
+    # analyze code with phpcs
+    - name: Run PHP-CodeSniffer
+      run: ./bin/phpcs

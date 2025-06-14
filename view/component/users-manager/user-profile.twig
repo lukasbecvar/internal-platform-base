@@ -1,0 +1,267 @@
+{% extends 'common/layout.twig' %}
+
+{# USER PROFILE VIEWER COMPONENT #}
+{% block component %}
+<div class="flex flex-col h-full">
+    {# USER PROFILE IMAGE VIEW MODAL #}
+    <div id="user-profile-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+        <div class="relative bg-gray-800/95 rounded max-w-md w-full border border-gray-700/50 m-2 animate-popin backdrop-blur-md">
+            <div class="px-4 py-3 border-b border-gray-700/50 bg-gray-800/30 flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-user-circle text-blue-400 mr-2"></i>
+                    <span class="font-semibold text-white">Profile Picture</span>
+                </div>
+                <button id="close-user-profile-modal" class="text-gray-400 hover:text-red-400 transition-colors duration-200">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            {% if userRepository.getProfilePic() == 'default_pic' %}
+                <img class="w-full h-auto rounded-b-lg" src={{ asset('/assets/images/default-profile.jpg') }} alt="profile picture">
+            {% else %}
+                <img class="w-full h-auto rounded-b-lg" src="data:image/jpeg;base64,{{ userRepository.getProfilePic()|e }}" alt="profile picture">
+            {% endif %}
+        </div>
+    </div>
+
+    {# SUB-NAVIGATION #}
+    <div class="flex-shrink-0 px-2 py-1 border-b border-gray-700/50 bg-gray-800/30">
+        <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+                <a href={{ path('app_manager_users') }} class="w-8 h-8 bg-gray-700/50 hover:bg-gray-600/50 rounded flex items-center justify-center transition-all duration-200 border border-gray-600/30" title="Back to users manager">
+                    <i class="fas fa-arrow-left text-gray-300 text-xs"></i>
+                </a>
+                <div class="hidden sm:block">
+                    <h1 class="text-xm font-bold text-white">User Profile</h1>
+                    <p class="text-gray-400 text-xs">View user information and details</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# MAIN CONTENT AREA #}
+    <div class="flex-1 flex flex-col min-h-0">
+        <div class="sm:p-4">
+            <div class="max-w-2xl mx-auto">
+                {# PROFILE CARD #}
+                <div class="bg-gray-800/50 border border-gray-700/50 sm:rounded overflow-hidden sm:mb-6">
+                    <div class="px-6 py-8 text-center border-b border-gray-700/50 bg-gray-800/30">
+                        {% if userRepository.getProfilePic() == 'default_pic' %}
+                            <img id="user-profile-photo" class="w-24 h-24 rounded-full mx-auto cursor-pointer hover:ring-2 hover:ring-blue-500/50 transition-all duration-200" src={{ asset('/assets/images/default-profile.jpg') }} alt="User Profile Picture">
+                        {% else %}
+                            <img id="user-profile-photo" class="w-24 h-24 rounded-full mx-auto cursor-pointer hover:ring-2 hover:ring-blue-500/50 transition-all duration-200" src="data:image/jpeg;base64,{{ userRepository.getProfilePic()|e }}" alt="User Profile Picture">
+                        {% endif %}
+                        <h1 class="text-3xl font-bold mt-4 text-white">
+                            {{ userRepository.getUsername()|e }}
+                        </h1>
+
+                        <div class="mt-3">
+                            {% if isUserAdmin %}
+                                <span id="role" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-600/20 text-red-400">
+                                    <i class="fas fa-crown mr-2"></i>{{ userRepository.getRole()|e }}
+                                </span>
+                            {% else %}
+                                <span id="role" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-600/20 text-green-400">
+                                    <i class="fas fa-user mr-2"></i>{{ userRepository.getRole()|e }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        {# USER ONLINE STATUS LINE #}
+                        <div class="mt-3">
+                            {% set isOnline = false %}
+                            {% for onlineUser in onlineList %}
+                                {% if userRepository.getId() == onlineUser.id %}
+                                    {% set isOnline = true %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if isOnline %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-600/20 text-green-400">
+                                    <span class="w-1.5 h-1.5 bg-green-400 rounded-full mr-1"></span>
+                                    Online
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-600/20 text-red-400">
+                                    <span class="w-1.5 h-1.5 bg-red-400 rounded-full mr-1"></span>
+                                    Offline
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        {# GO TO USER LOGS #}
+                        <div class="flex items-center justify-between p-3 bg-gray-700/30 rounded">
+                            <div class="flex items-center">
+                                <i class="fas fa-list text-blue-400 mr-3"></i>
+                                <span class="text-white">User Logs</span>
+                            </div>
+                            <a href={{ path('app_manager_logs', {'user_id': userRepository.getId, 'filter': 'all'}) }} class="text-blue-400 hover:text-blue-300 transition-colors duration-200 font-medium">
+                                View Logs <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                            </a>
+                        </div>
+
+                        {# USER DETAILS GRID #}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {# USER IP ADDRESS #}
+                            <div class="p-3 bg-gray-700/30 rounded">
+                                <div class="flex items-center">
+                                    <i class="fas fa-globe text-gray-400 mr-3"></i>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs text-gray-400 uppercase tracking-wider">IP Address</p>
+                                        {% set ipAddress = userRepository.getIpAddress() %}
+                                        {% if ipAddress|length > 20 %}
+                                            <div class="relative">
+                                                <p id="ip-short" class="text-white font-medium cursor-pointer hover:text-blue-400 transition-colors duration-200" onclick="toggleIpDisplay()" title="Click to show full IP address">
+                                                    {{ ipAddress|slice(0, 17) }}...
+                                                </p>
+                                                <p id="ip-full" class="text-white font-medium cursor-pointer hover:text-blue-400 transition-colors duration-200 hidden break-all" onclick="toggleIpDisplay()" title="Click to shorten IP address">
+                                                    {{ ipAddress|e }}
+                                                </p>
+                                            </div>
+                                        {% else %}
+                                            <p class="text-white font-medium">{{ ipAddress|e }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# USER BROWSER #}
+                            <div class="p-3 bg-gray-700/30 rounded">
+                                <div class="flex items-center">
+                                    <i class="fas fa-browser text-gray-400 mr-3"></i>
+                                    <div>
+                                        <p class="text-xs text-gray-400 uppercase tracking-wider">Browser</p>
+                                        <p class="text-white font-medium">{{ visitorInfoUtil.getBrowserShortify(userRepository.getUserAgent())|e }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# USER OS #}
+                            <div class="p-3 bg-gray-700/30 rounded">
+                                <div class="flex items-center">
+                                    <i class="fas fa-desktop text-gray-400 mr-3"></i>
+                                    <div>
+                                        <p class="text-xs text-gray-400 uppercase tracking-wider">Platform</p>
+                                        <p class="text-white font-medium">{{ visitorInfoUtil.getOs(userRepository.getUserAgent())|e }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# USER REGISTERED TIME #}
+                            <div class="p-3 bg-gray-700/30 rounded">
+                                <div class="flex items-center">
+                                    <i class="fas fa-user-plus text-gray-400 mr-3"></i>
+                                    <div>
+                                        <p class="text-xs text-gray-400 uppercase tracking-wider">Registered</p>
+                                        <p class="text-white font-medium">{{ userRepository.getRegisterTime()|date('Y-m-d H:i:s')|e }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# USER LAST LOGIN TIME #}
+                            <div class="p-3 bg-gray-700/30 rounded">
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock text-gray-400 mr-3"></i>
+                                    <div>
+                                        <p class="text-xs text-gray-400 uppercase tracking-wider">Last Login</p>
+                                        <p class="text-white font-medium">{{ userRepository.getLastLoginTime()|date('Y-m-d H:i:s')|e }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# USER BAN STATUS #}
+                            <div class="p-3 bg-gray-700/30 rounded">
+                                <div class="flex items-center">
+                                    <i class="fas fa-ban text-gray-400 mr-3"></i>
+                                    <div>
+                                        <p class="text-xs text-gray-400 uppercase tracking-wider">Ban Status</p>
+                                        {% if banManager.isUserBanned(userRepository.getId()) %}
+                                            <p class="text-red-400 font-medium">Banned</p>
+                                            <p class="text-gray-300 text-sm mt-1">Reason: {{ banManager.getBanReason(userRepository.getId()) }}</p>
+                                        {% else %}
+                                            <p class="text-green-400 font-medium">Not Banned</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# IP INFO TABLE #}
+                {% if userIpInfo is defined and userIpInfo.status is defined %}
+                    <div class="bg-gray-800/50 border border-gray-700/50 sm:rounded overflow-hidden">
+                        <div class="px-4 py-3 border-b border-gray-700/50 bg-gray-800/30">
+                            <h3 class="text-sm font-semibold text-white flex items-center">
+                                <i class="fas fa-map-marker-alt text-blue-400 mr-2"></i>
+                                IP Geolocation Information
+                            </h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-white w-full bg-gray-800/50 border border-gray-700/50">
+                                <thead>
+                                    <tr class="bg-gray-700/50">
+                                        <th class="px-4 py-3 border-b border-gray-600/50 text-left font-semibold text-gray-200 whitespace-nowrap">Property</th>
+                                        <th class="px-4 py-3 border-b border-gray-600/50 text-left font-semibold text-gray-200 whitespace-nowrap">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key, value in userIpInfo %}
+                                        <tr class="hover:bg-gray-600/40 hover:shadow-lg hover:shadow-gray-900/20 transition-all duration-300">
+                                            <td class="px-4 py-3 border-b border-gray-600/50 text-white whitespace-nowrap font-medium">
+                                                {{ key|title|replace({'_': ' '}) }}
+                                            </td>
+                                            <td class="px-4 py-3 border-b border-gray-600/50 text-white whitespace-nowrap">
+                                                {% if value is iterable %}
+                                                    <span class="text-gray-400 italic">[array]</span>
+                                                {% else %}
+                                                    {{ value }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{# PROFILE PICTURE MODAL SCRIPT #}
+<script>
+    document.getElementById('user-profile-photo').addEventListener('click', function() {
+        document.getElementById('user-profile-modal').classList.remove('hidden')
+        document.getElementById('user-profile-modal').classList.add('flex')
+    });
+
+    document.getElementById('close-user-profile-modal').addEventListener('click', function() {
+        document.getElementById('user-profile-modal').classList.add('hidden')
+        document.getElementById('user-profile-modal').classList.remove('flex')
+    });
+
+    document.getElementById('user-profile-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden')
+            this.classList.remove('flex')
+        }
+    });
+
+    // IP address toggle function
+    function toggleIpDisplay() {
+        const ipShort = document.getElementById('ip-short')
+        const ipFull = document.getElementById('ip-full')
+
+        if (ipShort && ipFull) {
+            if (ipShort.classList.contains('hidden')) {
+                ipShort.classList.remove('hidden')
+                ipFull.classList.add('hidden')
+            } else {
+                ipShort.classList.add('hidden')
+                ipFull.classList.remove('hidden')
+            }
+        }
+    }
+</script>
+{% endblock %}

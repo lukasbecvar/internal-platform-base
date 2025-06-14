@@ -1,0 +1,28 @@
+{% extends 'common/layout.twig' %}
+
+{# MAIN internal-platform-base DASHBOARD #}
+{% block component %}
+<div class="w-full dashbard-component bg-gray-900 min-h-screen">
+    {# MAIN DASHBOARD CARDS #}
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 component">
+        {# WARNINGS BOX CARD #}
+        {% include "component/dashboard/card/warning-card.twig" %}
+        {# DATABASE STATISTICS #}
+        {% include "component/dashboard/card/database-statisctis-card.twig" %}
+    </div>
+</div>
+
+{# HIDE WARNING BOX IF NO WARNINGS FOUND #}
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const divElement = document.getElementById('warning-box')
+        const elements = document.getElementById('wraning-elements')
+        if (elements.innerHTML.trim() === '') {
+            divElement.style.display = 'none'
+        } else {
+            divElement.style.display = 'block'
+        }
+    })
+</script>
+
+{% endblock %}

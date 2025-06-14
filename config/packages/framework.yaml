@@ -1,0 +1,14 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    trusted_hosts: '%env(TRUSTED_HOSTS)%'
+
+    # session config
+    session:
+        enabled: true
+        handler_id: 'session.handler.native_file'
+        save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

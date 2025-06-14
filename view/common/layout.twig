@@ -1,0 +1,67 @@
+{% extends 'common/base.twig' %}
+
+{# MAIN ADMIN COMPONENT LAYOUT #}
+{% block body %}
+    {# REDIRECT TO ERROR PAGE IF JAVASCRIPT IS DISABLED #}
+    <noscript>
+        <meta http-equiv="refresh" content="0; URL='{{ path('app_error_by_code', {code: '426'}) }}'" />
+    </noscript>
+
+    {# PROFILE IMAGE VIEW #}
+    <div id="profile-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+        <div class="relative bg-gray-800 rounded max-w-md w-full border border-gray-600 m-2 animate-popin shadow-2xl">
+            <div class="px-4 py-3 border-b border-gray-600 font-semibold tracking-wide text-sm uppercase text-gray-200 flex items-center gap-2">
+                <span>Profile picture</span>
+                <button id="close-profile-modal" class="absolute top-2 right-3 text-gray-300 text-2xl leading-none hover:text-red-400 transition-colors duration-200">&times;</button>
+            </div>
+            {% if getUserData().getProfilePic == 'default_pic' %}
+                <img class="w-full h-auto rounded-b-lg" src={{ asset('/assets/images/default-profile.jpg') }} alt="profile picture">
+            {% else %}
+                <img class="w-full h-auto rounded-b-lg" src="data:image/jpeg;base64,{{ getUserData().getProfilePic|e }}" alt="profile picture">
+            {% endif %}
+        </div>
+    </div>
+
+    {# LOADER COMPONENT #}
+    <div id="loader-wrapper">
+        <div id="loader"></div>
+        <div class="loading-text">Loading Internal platform</div>
+        <div class="loading-subtext">Please wait while we prepare your dashboard...</div>
+    </div>
+    
+    {# MAIN NAVBAR #}
+    {% include 'element/navigation.twig' %}
+
+    {# SIDEBAR #}
+    {% include "element/sidebar.twig" %}
+    
+    {# MAIN COMPONENT INIT #}
+    <main id="main-content" class="md:active bg-gray-900 flex flex-col">
+        {% block component %}{% endblock %}
+    </main>
+
+    {# SIDEBAR TOGGLE SCRIPT #}
+    {{ encore_entry_script_tags('sidebar-element-js') }}
+
+    {# DEFAUTL TOGGLE SIDEBAR ON NON MOBILE DEVICES #}
+    {% if app.request.attributes.get('_route') == 'app_dashboard' %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('main-content');
+                if (window.innerWidth > 400) {
+                    // small delay to ensure smooth animation
+                    setTimeout(() => {
+                        sidebar.classList.add('active');
+                        mainContent.classList.add('active');
+                    }, 50);
+                }
+            });
+        </script>
+    {% endif %}
+
+    {# REGISTER JAVASCRIPT ASSETS #}
+    {{ encore_entry_script_tags('loading-component-js') }}
+    {{ encore_entry_script_tags('notification-subscriber-js') }}
+    {{ encore_entry_script_tags('profile-photo-view-toggle-js') }}
+{% endblock %}

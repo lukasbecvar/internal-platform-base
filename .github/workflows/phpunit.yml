@@ -1,0 +1,62 @@
+# run application tests with phpunit
+name: PHPUnit Tests
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  phpunit:
+    name: Run PHPUnit
+    runs-on: ubuntu-latest
+
+    # define mysql service
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # setup php interpreter
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: mbstring, intl, pdo_mysql, pdo, zip
+
+      # install backend dependencies
+      - name: Install backend dependencies
+        run: composer install --no-interaction --no-progress
+      
+      # install frontend dependencies
+      - name: Install frontend dependencies
+        run: npm install --loglevel=error
+
+      # build frontend assets
+      - name: Build assets
+        run: npm run build
+
+      # create test database
+      - name: Create database
+        run: php bin/console doctrine:database:create --if-not-exists --env=test
+
+      # migrate database to latest version
+      - name: Migrate database
+        run: php bin/console doctrine:migrations:migrate --no-interaction --env=test
+        
+      # load testing datafixtures
+      - name: Load db datafixtures
+        run: php bin/console doctrine:fixtures:load --no-interaction --env=test
+
+      # run tests
+      - name: Run PHPUnit
+        run: php ./bin/phpunit
