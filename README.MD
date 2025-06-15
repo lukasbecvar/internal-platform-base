@@ -21,7 +21,6 @@ The complete stack for development is in Docker Compose, including PHP, Node, an
 
 ## Index
 - [Requirements](#requirements)
-- [Installation](#installation)
 - [Configuration](#configuration)
 - [Authentication](#authentication)
 - [Notifications](#notifications)
@@ -43,18 +42,6 @@ The complete stack for development is in Docker Compose, including PHP, Node, an
 * PHP-DOM extension
 * PHP-GMP extension
 * PHP-GD extension
-
-## Installation
-Installation is very simple like any other PHP project.
-* Clone repo ``git clone git@github.com:lukasbecvar/admin-suite.git``
-* Create apache virtual host or nginx configuration like ([apache-config](.docker/configs/apache-site.conf))
-* Create .env file with your configuration (.env.prod)
-* Install dependencies ``npm install && composer install``
-* Build frontend assets ``npm run build``
-* Create database ``php bin/console doctrine:database:create --if-not-exists``
-* Migrate database ``php bin/console doctrine:migrations:migrate --no-interaction``
-* Create systemd service for monitoring process (console command infinite loop) ([systemd-config](.docker/configs/monitoring-systemd.service))
-* Create main admin user using console command or web interface (webinterface allows to create user if users table is empty)
 
 ## Configuration
 #### Environment variables
