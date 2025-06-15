@@ -1,7 +1,7 @@
 {
     "name": "internal-platform-base",
-    "version": "2.0",
-    "description": "Solution for Linux server with services administration and monitoring",
+    "version": "1.0",
+    "description": "Solution for building internal systems",
     "main": "webpack.config.js",
     "author": "Lukáš Bečvář",
     "license": "MIT",
