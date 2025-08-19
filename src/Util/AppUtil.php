@@ -136,8 +136,8 @@ class AppUtil
      */
     public function loadConfig(string $configFile): ?array
     {
-        // path to suite configs folder
-        $configPath = $this->getAppRootDir() . '/config/suite/' . $configFile;
+        // path to configs folder
+        $configPath = $this->getAppRootDir() . '/config/' . $configFile;
 
         // set config path to specified file
         if (file_exists($this->getAppRootDir() . '/' . $configFile)) {

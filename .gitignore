@@ -22,7 +22,7 @@
 /public/assets/
 /package-lock.json
 
-# custom suite configs
+# custom configs
 blocked-usernames.json
 
 # docker services files

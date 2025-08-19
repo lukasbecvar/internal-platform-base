@@ -7,13 +7,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * Class DashboardControllerTest
+ * Class ConfigManagerControllerTest
  *
- * Test cases for dashboard component
+ * Test cases for config manager component
  *
  * @package App\Tests\Controller\Component
  */
-class DashboardControllerTest extends CustomTestCase
+class ConfigManagerControllerTest extends CustomTestCase
 {
     private KernelBrowser $client;
 
@@ -26,13 +26,13 @@ class DashboardControllerTest extends CustomTestCase
     }
 
     /**
-     * Test load dashboard page
+     * Test load settings selector page
      *
      * @return void
      */
-    public function testLoadDashboardPage(): void
+    public function testLoadSettingsSelectorPage(): void
     {
-        $this->client->request('GET', '/dashboard');
+        $this->client->request('GET', '/settings');
 
         // assert response
         $this->assertSelectorTextContains('title', 'Internal platform');
@@ -48,8 +48,8 @@ class DashboardControllerTest extends CustomTestCase
         $this->assertSelectorExists('a[href="/manager/logs"]');
         $this->assertSelectorExists('a[href="/manager/users"]');
         $this->assertSelectorExists('main[id="main-content"]');
-        $this->assertSelectorTextContains('body', 'Diagnostic Alerts');
-        $this->assertSelectorTextContains('body', 'Database Statistics');
+        $this->assertSelectorTextContains('body', 'Settings');
+        $this->assertSelectorTextContains('body', 'Manage your account preferences and security');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 }
