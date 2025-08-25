@@ -102,8 +102,7 @@ class AutoLoginMiddlewareTest extends TestCase
         $this->cookieUtilMock->expects($this->once())->method('get')->with('user-token')->willReturn($userToken);
 
         // mock user manager
-        $this->userManagerMock->expects($this->exactly(2))
-            ->method('getUserRepository')->with(['token' => $userToken])->willReturn($user);
+        $this->userManagerMock->expects($this->exactly(2))->method('getUserRepository')->with(['token' => $userToken])->willReturn($user);
 
         // expect call login
         $this->authManagerMock->expects($this->once())->method('login')->with('testuser', true);

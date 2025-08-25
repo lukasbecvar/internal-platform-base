@@ -76,10 +76,8 @@ class UserListCommandTest extends TestCase
         $this->userManager->expects($this->once())->method('getAllUsersRepositories')->willReturn([$user1]);
 
         // expect call visitor info utils
-        $this->visitorInfoUtil->expects($this->once())->method('getBrowserShortify')
-            ->with('Mozilla/5.0')->willReturn('Mozilla');
-        $this->visitorInfoUtil->expects($this->once())->method('getOs')
-            ->with('Mozilla/5.0')->willReturn('Unknown OS');
+        $this->visitorInfoUtil->expects($this->once())->method('getBrowserShortify')->with('Mozilla/5.0')->willReturn('Mozilla');
+        $this->visitorInfoUtil->expects($this->once())->method('getOs')->with('Mozilla/5.0')->willReturn('Unknown OS');
 
         // execute the command
         $exitCode = $this->commandTester->execute([]);

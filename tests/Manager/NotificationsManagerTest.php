@@ -101,7 +101,7 @@ class NotificationsManagerTest extends TestCase
         // mock notifications subscribers
         $notificationsSubscribers = [
             new NotificationSubscriber(),
-            new NotificationSubscriber(),
+            new NotificationSubscriber()
         ];
         $this->repositoryMock->expects($this->once())->method('findBy')->with(['status' => 'open'])
             ->willReturn($notificationsSubscribers);

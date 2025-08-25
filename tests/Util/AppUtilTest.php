@@ -42,8 +42,7 @@ class AppUtilTest extends TestCase
     public function testGetAppRootDir(): void
     {
         // expect call get project dir
-        $this->kernelInterface->expects($this->once())
-            ->method('getProjectDir');
+        $this->kernelInterface->expects($this->once())->method('getProjectDir');
 
         // call tested method
         $result = $this->appUtil->getAppRootDir();
@@ -273,7 +272,7 @@ class AppUtilTest extends TestCase
         $expectedConfig = [
             'memory_cost' => 1024,
             'time_cost' => 2,
-            'threads' => 1,
+            'threads' => 1
         ];
 
         // call tested method
@@ -328,7 +327,7 @@ class AppUtilTest extends TestCase
             '2023-01-01 13:15',
             '2023-01-01 13:45',
             '2023-01-01 23:30',
-            'invalid time',
+            'invalid time'
         ];
 
         // expected results
@@ -339,7 +338,7 @@ class AppUtilTest extends TestCase
             '2023-01-01 13:00',
             '2023-01-01 14:00',
             '2023-01-01 00:00',
-            'invalid time',
+            'invalid time'
         ];
 
         // call tested method

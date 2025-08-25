@@ -162,11 +162,7 @@ class LogManagerTest extends TestCase
         $this->appUtilMock->method('getEnvValue')->willReturn('test-token');
 
         // expect set cookie call
-        $this->cookieUtilMock->expects($this->once())->method('set')->with(
-            'anti-log',
-            'test-token',
-            $this->greaterThan(time())
-        );
+        $this->cookieUtilMock->expects($this->once())->method('set')->with('anti-log', 'test-token', $this->greaterThan(time()));
 
         // call tested method
         $this->logManager->setAntiLog();
@@ -366,8 +362,7 @@ class LogManagerTest extends TestCase
         $logMock->expects($this->once())->method('setStatus')->with($newStatus);
 
         // expect find method to be called
-        $this->repositoryMock->expects($this->once())->method('find')->with($logId)
-            ->willReturn($logMock);
+        $this->repositoryMock->expects($this->once())->method('find')->with($logId)->willReturn($logMock);
 
         // expect flush method to be called
         $this->entityManagerMock->expects($this->once())->method('flush');

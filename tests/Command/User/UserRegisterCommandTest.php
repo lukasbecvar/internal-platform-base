@@ -145,8 +145,9 @@ class UserRegisterCommandTest extends TestCase
     public function testExecuteCommandWithErrorRegisterUserThrowException(): void
     {
         // mock auth manager
-        $this->authManager->expects($this->once())
-            ->method('registerUser')->willThrowException(new Exception('Error register user'));
+        $this->authManager->expects($this->once())->method('registerUser')->willThrowException(
+            new Exception('Error register user')
+        );
 
         // execute command with new username
         $exitCode = $this->commandTester->execute(['username' => 'newuser']);

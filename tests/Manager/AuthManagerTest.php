@@ -1113,8 +1113,7 @@ class AuthManagerTest extends TestCase
         $cacheItemMock->expects($this->once())->method('get')->willReturn('offline');
 
         // expect cache get
-        $this->cacheUtilMock->expects($this->once())->method('getValue')->with($userCacheKey)
-            ->willReturn($cacheItemMock);
+        $this->cacheUtilMock->expects($this->once())->method('getValue')->with($userCacheKey)->willReturn($cacheItemMock);
 
         // call test method
         $status = $this->authManager->getUserStatus($userId);

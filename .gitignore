@@ -23,7 +23,7 @@
 /package-lock.json
 
 # custom configs
-blocked-usernames.json
+./blocked-usernames.json
 
 # docker services files
 .docker/services

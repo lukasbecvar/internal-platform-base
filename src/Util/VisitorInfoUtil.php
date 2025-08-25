@@ -217,11 +217,7 @@ class VisitorInfoUtil
 
         try {
             // get get ip info data
-            $data = file_get_contents(
-                $_ENV['IP_INFO_API'] . '/json/' . $ipAddress,
-                false,
-                $context
-            );
+            $data = file_get_contents($_ENV['IP_INFO_API'] . '/json/' . $ipAddress, false, $context);
 
             if ($data == false) {
                 return null;

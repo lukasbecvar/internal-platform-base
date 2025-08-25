@@ -93,7 +93,9 @@ class GenerateVapidKeysCommandTest extends TestCase
         $this->appUtil->method('getEnvValue')->willReturn('true');
 
         // mock regenerate method
-        $this->notificationsManager->method('regenerateVapidKeys')->willThrowException(new Exception('Simulated error'));
+        $this->notificationsManager->method('regenerateVapidKeys')->willThrowException(
+            new Exception('Simulated error')
+        );
 
         // simulate user confirmation input
         $this->commandTester->setInputs(['yes']);
@@ -120,8 +122,10 @@ class GenerateVapidKeysCommandTest extends TestCase
         $this->appUtil->method('getEnvValue')->willReturn('true');
 
         // mock regeneration method
-        $this->notificationsManager->method('regenerateVapidKeys')
-            ->willReturn(['publicKey' => 'test_public_key', 'privateKey' => 'test_private_key']);
+        $this->notificationsManager->method('regenerateVapidKeys')->willReturn([
+            'publicKey' => 'test_public_key',
+            'privateKey' => 'test_private_key'
+        ]);
 
         // simulate user confirmation input
         $this->commandTester->setInputs(['yes']);

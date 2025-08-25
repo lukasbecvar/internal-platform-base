@@ -15,6 +15,7 @@ monolog:
             handler: exception
             excluded_http_codes: [403, 404, 405, 426, 503]
 
+# dev log config
 when@dev:
     monolog:
         handlers:

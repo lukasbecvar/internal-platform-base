@@ -45,6 +45,11 @@ main {
 	text-decoration: underline;
 }
 
+/* fix profiler toolbar position */
+.sf-toolbar {
+	position: absolute !important;
+}
+
 /* auth component style */
 .auth-component {
 	background: transparent;

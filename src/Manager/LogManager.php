@@ -210,9 +210,10 @@ class LogManager
      */
     public function getAuthLogsCount(): int
     {
-        $count = $this->logRepository->count(
-            ['name' => 'authenticator', 'status' => 'UNREADED']
-        );
+        $count = $this->logRepository->count([
+            'name' => 'authenticator',
+            'status' => 'UNREADED'
+        ]);
 
         return $count;
     }

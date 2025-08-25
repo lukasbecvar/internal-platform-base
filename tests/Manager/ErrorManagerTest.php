@@ -75,12 +75,9 @@ class ErrorManagerTest extends TestCase
     public function testLogErrorToExceptionLog(): void
     {
         // expect the logger error
-        $this->loggerMock->expects($this->once())->method('error')->with(
-            'error message',
-            [
-                'code' => Response::HTTP_NOT_FOUND
-            ]
-        );
+        $this->loggerMock->expects($this->once())->method('error')->with('error message', [
+            'code' => Response::HTTP_NOT_FOUND
+        ]);
 
         // call tested method
         $this->errorManager->logError('error message', Response::HTTP_NOT_FOUND);

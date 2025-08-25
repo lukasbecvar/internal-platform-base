@@ -11,46 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let touchEndY = 0
     let isHorizontalSwipe = true
 
-    // check if any element on the page has horizontal overflow at the start
-    function hasHorizontalOverflowAtStart() {
-        const elements = document.querySelectorAll('*')
-        for (const element of elements) {
-            if (element.scrollWidth > element.clientWidth && element.scrollLeft === 0) {
-                return true
-            }
-        }
-        return false
-    }
-
-    // check if any element on the page has horizontal overflow
-    function hasHorizontalOverflow() {
-        const elements = document.querySelectorAll('*')
-        for (const element of elements) {
-            if (element.scrollWidth > element.clientWidth) {
-                return true
-            }
-        }
-        return false
-    }
-
-    // handle swipe gestures
-    function handleSwipeGesture() {
-        const swipeThreshold = 80
-        if (!hasHorizontalOverflow() || hasHorizontalOverflowAtStart()) {
-            if (isHorizontalSwipe) {
-                if (touchEndX - touchStartX > swipeThreshold) {
-                    // enable sidebar
-                    sidebar.classList.add('active')
-                    mainContent.classList.add('active')
-                } else if (touchStartX - touchEndX > swipeThreshold) {
-                    // disable sidebar
-                    sidebar.classList.remove('active')
-                    mainContent.classList.remove('active')
-                }
-            }
-        }
-    }
-
     // setup swipe detection for an element
     function setupSwipeDetection(element) {
         let touchedElement = null

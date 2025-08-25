@@ -234,19 +234,19 @@
     document.getElementById('user-profile-photo').addEventListener('click', function() {
         document.getElementById('user-profile-modal').classList.remove('hidden')
         document.getElementById('user-profile-modal').classList.add('flex')
-    });
+    })
 
     document.getElementById('close-user-profile-modal').addEventListener('click', function() {
         document.getElementById('user-profile-modal').classList.add('hidden')
         document.getElementById('user-profile-modal').classList.remove('flex')
-    });
+    })
 
     document.getElementById('user-profile-modal').addEventListener('click', function(e) {
         if (e.target === this) {
             this.classList.add('hidden')
             this.classList.remove('flex')
         }
-    });
+    })
 
     // IP address toggle function
     function toggleIpDisplay() {

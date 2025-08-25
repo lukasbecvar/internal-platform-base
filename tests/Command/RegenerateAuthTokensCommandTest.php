@@ -40,8 +40,10 @@ class RegenerateAuthTokensCommandTest extends TestCase
     public function testExecuteCommandWithException(): void
     {
         // mock regenerate tokens method status
-        $this->authManager->expects($this->once())->method('regenerateUsersTokens')
-            ->willReturn(['status' => false, 'message' => 'Error message']);
+        $this->authManager->expects($this->once())->method('regenerateUsersTokens')->willReturn([
+            'status' => false,
+            'message' => 'Error message'
+        ]);
 
         // execute the command
         $exitCode = $this->commandTester->execute([]);
@@ -62,8 +64,9 @@ class RegenerateAuthTokensCommandTest extends TestCase
     public function testExecuteCommandWhenRegenerationIsSuccess(): void
     {
         // mock regenerate tokens method status
-        $this->authManager->expects($this->once())->method('regenerateUsersTokens')
-            ->willReturn(['status' => true]);
+        $this->authManager->expects($this->once())->method('regenerateUsersTokens')->willReturn([
+            'status' => true
+        ]);
 
         // execute the command
         $exitCode = $this->commandTester->execute([]);
