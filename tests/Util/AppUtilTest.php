@@ -65,7 +65,7 @@ class AppUtilTest extends TestCase
     }
 
     /**
-     * Test get app version
+     * Test get app root directory
      *
      * @return void
      */
