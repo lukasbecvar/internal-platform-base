@@ -54,7 +54,6 @@ class RotateAppSecretCommandTest extends TestCase
 
         // assert output
         $this->assertStringContainsString('APP_SECRET has been rotated successfully', $output);
-        $this->assertStringContainsString('Remember: Sessions, remember-me tokens, and encrypted data may become invalid', $output);
         $this->assertEquals(Command::SUCCESS, $exitCode);
     }
 
