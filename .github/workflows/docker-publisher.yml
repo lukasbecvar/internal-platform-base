@@ -1,0 +1,52 @@
+# publisher for building and publishing docker image to github packages container registry
+name: Publish Docker Image
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # login to container registry
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # setup php interpreter for composer
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+
+      # install composer dependencies
+      - name: Install backend dependencies
+        run: composer install --ignore-platform-reqs --no-interaction --no-progress
+
+      # install frontend dependencies with npm
+      - name: Install frontend dependencies
+        run: npm install --loglevel=error
+
+      # build frontend assets
+      - name: Build assets
+        run: npm run build
+
+      # build and push docker image
+      - name: Build and push docker image
+        uses: docker/build-push-action@v4
+        with:
+          file: .docker/Dockerfile.prod
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/internal-platform-base:${{ github.event.release.tag_name }}
+            ghcr.io/${{ github.repository_owner }}/internal-platform-base:latest
