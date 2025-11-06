@@ -1,0 +1,51 @@
+name: Build & Attach archive on release
+
+on:
+  release:
+    types: [published]
+
+# enable github actions token write permissions
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & Attach
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # setup php interpreter
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: intl, pdo_mysql, pdo
+
+      # install backend dependencies
+      - name: Install backend dependencies
+        run: composer install --no-interaction --no-progress
+      
+      # install frontend dependencies
+      - name: Install frontend dependencies
+        run: npm install --loglevel=error
+
+      # build frontend assets
+      - name: Build assets
+        run: npm run build
+
+      # create release asset archive without unnecessary files
+      - name: Create release archive
+        run: |
+          tar --warning=no-file-changed -czf ${{ github.event.repository.name }}-${{ github.ref_name }}.tar.gz \
+            . || true
+
+      # upload release asset archive
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ github.event.repository.name }}-${{ github.ref_name }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
