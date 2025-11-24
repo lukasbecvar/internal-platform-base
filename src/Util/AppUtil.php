@@ -154,17 +154,36 @@ class AppUtil
      */
     public function loadConfig(string $configFile): ?array
     {
-        // path to configs folder
-        $configPath = $this->getAppRootDir() . '/config/' . $configFile;
+        $rootDir = $this->getAppRootDir();
+        $candidatePaths = [
+            $this->getCustomConfigDirectory() . '/' . $configFile,
+            $rootDir . '/' . $configFile,
+            $rootDir . '/config/internal/' . $configFile,
+            $rootDir . '/config/' . $configFile,
+        ];
 
-        // set config path to specified file
-        if (file_exists($this->getAppRootDir() . '/' . $configFile)) {
-            $configPath = $this->getAppRootDir() . '/' . $configFile;
+        foreach (array_unique($candidatePaths) as $configPath) {
+            if (file_exists($configPath)) {
+                return $this->jsonUtil->getJson($configPath);
+            }
         }
 
-        // load config file
-        $config = $this->jsonUtil->getJson($configPath);
-        return $config;
+        return null;
+    }
+
+    /**
+     * Get writable directory for custom configuration overrides
+     *
+     * @return string The custom config directory
+     */
+    public function getCustomConfigDirectory(): string
+    {
+        $override = $_ENV['APP_CUSTOM_CONFIG_DIR'] ?? getenv('APP_CUSTOM_CONFIG_DIR');
+        if (!empty($override)) {
+            return rtrim($override, '/');
+        }
+
+        return $this->getAppRootDir();
     }
 
     /**
@@ -199,6 +218,22 @@ class AppUtil
     public function getYamlConfig(string $configFile): mixed
     {
         return Yaml::parseFile($this->getAppRootDir() . '/config/' . $configFile);
+    }
+
+    /**
+     * Check if feature flag is disabled
+     *
+     * @param string $featureFlag The feature flag to check
+     *
+     * @return bool True if feature flag is disabled, false otherwise
+     */
+    public function isFeatureFlagDisabled(string $featureFlag): bool
+    {
+        // get feature flags config
+        $disabledFeatureFlags = $this->loadConfig('feature-flags.json');
+
+        // check if feature flag is disabled
+        return isset($disabledFeatureFlags[$featureFlag]) && $disabledFeatureFlags[$featureFlag] === false;
     }
 
     /**

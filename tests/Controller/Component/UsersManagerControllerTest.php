@@ -2,10 +2,13 @@
 
 namespace App\Tests\Controller\Component;
 
+use App\Manager\UserManager;
 use App\Tests\CustomTestCase;
 use Symfony\Component\String\ByteString;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use App\Controller\Component\UsersManagerController;
 
 /**
  * Class UsersManagerControllerTest
@@ -14,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @package App\Tests\Controller\Component
  */
+#[CoversClass(UsersManagerController::class)]
 class UsersManagerControllerTest extends CustomTestCase
 {
     private KernelBrowser $client;
@@ -28,6 +32,33 @@ class UsersManagerControllerTest extends CustomTestCase
     }
 
     /**
+     * Test load users manager page
+     *
+     * @return void
+     */
+    public function testLoadUsersManagerPage(): void
+    {
+        $this->client->request('GET', '/manager/users');
+
+        // assert response
+        $this->assertSelectorTextContains('title', 'Internal platform');
+        $this->assertAnySelectorTextContains('p', 'Manage system users and permissions');
+        $this->assertSelectorTextContains('body', 'Users Manager');
+        $this->assertSelectorExists('a[title="Back to dashboard"]');
+        $this->assertSelectorExists('a[title="Add new user"]');
+        $this->assertAnySelectorTextContains('body', '#');
+        $this->assertAnySelectorTextContains('body', 'Username');
+        $this->assertAnySelectorTextContains('body', 'Role');
+        $this->assertAnySelectorTextContains('body', 'Browser');
+        $this->assertAnySelectorTextContains('body', 'OS');
+        $this->assertAnySelectorTextContains('body', 'Last Login');
+        $this->assertAnySelectorTextContains('body', 'IP Address');
+        $this->assertAnySelectorTextContains('body', 'Status');
+        $this->assertAnySelectorTextContains('body', 'Banned');
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    }
+
+    /**
      * Test load user register page
      *
      * @return void
@@ -38,6 +69,7 @@ class UsersManagerControllerTest extends CustomTestCase
 
         // assert response
         $this->assertSelectorTextContains('title', 'Internal platform');
+        $this->assertAnySelectorTextContains('p', 'Create a new system user account');
         $this->assertSelectorExists('a[title="Back to users manager"]');
         $this->assertSelectorExists('form[name="registration_form"]');
         $this->assertSelectorExists('input[name="registration_form[username]"]');
@@ -132,6 +164,34 @@ class UsersManagerControllerTest extends CustomTestCase
         $this->assertSelectorExists('input[name="registration_form[password][second]"]');
         $this->assertSelectorExists('button[type="submit"]');
         $this->assertSelectorTextContains('li:contains("The values do not match.")', 'The values do not match.');
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    }
+
+    /**
+     * Test submit user register form when password is the same as username
+     *
+     * @return void
+     */
+    public function testSubmitUserRegisterWithPasswordIsTheSameAsUsername(): void
+    {
+        $this->client->request('POST', '/manager/users/register', [
+            'registration_form' => [
+                'username' => 'valid-testing-username',
+                'password' => [
+                    'first' => 'valid-testing-username',
+                    'second' => 'valid-testing-username'
+                ]
+            ]
+        ]);
+
+        // assert response
+        $this->assertSelectorTextContains('title', 'Internal platform');
+        $this->assertSelectorExists('form[name="registration_form"]');
+        $this->assertSelectorExists('input[name="registration_form[username]"]');
+        $this->assertSelectorExists('input[name="registration_form[password][first]"]');
+        $this->assertSelectorExists('input[name="registration_form[password][second]"]');
+        $this->assertSelectorExists('button[type="submit"]');
+        $this->assertSelectorTextContains('li:contains("Your password cannot be the same as your username")', 'Your password cannot be the same as your username');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
@@ -325,5 +385,81 @@ class UsersManagerControllerTest extends CustomTestCase
 
         // assert response
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Test API access update with missing user id
+     *
+     * @return void
+     */
+    public function testUpdateUserApiAccessWithEmptyId(): void
+    {
+        $this->client->request('GET', '/manager/users/api-access', [
+            'id' => '',
+            'status' => 'enable'
+        ]);
+
+        // assert response
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Test API access update with invalid status value
+     *
+     * @return void
+     */
+    public function testUpdateUserApiAccessWithInvalidStatus(): void
+    {
+        $this->client->request('GET', '/manager/users/api-access', [
+            'id' => 2,
+            'status' => 'paused'
+        ]);
+
+        // assert response
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Test API access update for non existing user id
+     *
+     * @return void
+     */
+    public function testUpdateUserApiAccessWithUnknownUser(): void
+    {
+        // mock user manager
+        $userManagerMock = $this->createMock(UserManager::class);
+        $userManagerMock->expects($this->once())->method('checkIfUserExistById')->with(99999)->willReturn(false);
+        static::getContainer()->set(UserManager::class, $userManagerMock);
+
+        $this->client->request('GET', '/manager/users/api-access', [
+            'id' => 99999,
+            'status' => 'enable'
+        ]);
+
+        // assert response
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Test API access update success flow
+     *
+     * @return void
+     */
+    public function testUpdateUserApiAccessSuccess(): void
+    {
+        // mock user manager
+        $userManagerMock = $this->createMock(UserManager::class);
+        $userManagerMock->expects($this->once())->method('checkIfUserExistById')->with(5)->willReturn(true);
+        $userManagerMock->expects($this->once())->method('updateApiAccessStatus')->with(5, false, 'user-manager');
+        static::getContainer()->set(UserManager::class, $userManagerMock);
+
+        $this->client->request('GET', '/manager/users/api-access', [
+            'id' => 5,
+            'status' => 'disable',
+            'page' => 3
+        ]);
+
+        // assert response
+        $this->assertResponseRedirects('/manager/users?page=3');
     }
 }

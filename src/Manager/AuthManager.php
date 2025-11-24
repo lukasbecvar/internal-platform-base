@@ -143,6 +143,7 @@ class AuthManager
             ->setIpAddress($ip_address)
             ->setUserAgent($user_agent)
             ->setToken($token)
+            ->setAllowApiAccess(false)
             ->setProfilePic('default_pic')
             ->setRegisterTime($time)
             ->setLastLoginTime($time);
@@ -328,7 +329,7 @@ class AuthManager
                     $this->emailManager->sendDefaultEmail(
                         recipient: $this->appUtil->getEnvValue('ADMIN_CONTACT'),
                         subject: 'LOGIN ALERT',
-                        message: 'User ' . $username . ' has logged to internal-platform-base dashboard, login log has been saved in database.'
+                        message: 'User ' . $username . ' has logged to dashboard, login log has been saved in database.'
                     );
                 }
             } catch (Exception $e) {
@@ -637,6 +638,63 @@ class AuthManager
     }
 
     /**
+     * Authenticate request via API key header
+     *
+     * @param string $token The plain user token passed via API-KEY header
+     *
+     * @return bool True if token is valid and session was hydrated
+     */
+    public function authenticateWithApiKey(string $token): bool
+    {
+        // check if token is empty
+        $token = trim($token);
+        if ($token === '') {
+            return false;
+        }
+
+        // check if token is valid
+        $user = $this->userManager->getUserByToken($token);
+        if ($user === null) {
+            $this->logManager->log(
+                name: 'api-authentication',
+                message: 'invalid api key authentication with token: ' . $token,
+                level: LogManager::LEVEL_CRITICAL
+            );
+            return false;
+        }
+
+        // get and validate user id
+        $userId = $user->getId();
+        if ($userId == null) {
+            $this->errorManager->handleError(
+                message: 'error to authenticate with api key: user id is null',
+                code: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        // check if user is allowed to use api
+        if (!$user->getAllowApiAccess()) {
+            $this->logManager->log(
+                name: 'api-authentication',
+                message: 'api key authentication: ' . $user->getUsername() . ' is not allowed to use api',
+                level: LogManager::LEVEL_CRITICAL
+            );
+            return false;
+        }
+
+        // log api access
+        $requestUri = $this->visitorInfoUtil->getRequestUri();
+        $requestMethod = $this->visitorInfoUtil->getRequestMethod();
+        $this->logManager->logApiAccess($requestUri, $requestMethod, $userId);
+
+        // set session
+        $this->sessionUtil->setSession('user-token', $token);
+        $this->sessionUtil->setSession('user-identifier', (string) $userId);
+
+        return true;
+    }
+
+    /**
      * Regenerate authentication token for a specific user
      *
      * @param int $userId The ID of the user
@@ -677,19 +735,6 @@ class AuthManager
                 code: Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
-    }
-
-    /**
-     * Store online user id in cache
-     *
-     * @param int $userId The id of user to store
-     *
-     * @return void
-     */
-    public function cacheOnlineUser(int $userId): void
-    {
-        // cache online visitor
-        $this->cacheUtil->setValue('online_user_' . $userId, 'online', 300);
     }
 
     /**
@@ -758,5 +803,18 @@ class AuthManager
         }
 
         return 'offline';
+    }
+
+    /**
+     * Store online user id in cache
+     *
+     * @param int $userId The id of user to store
+     *
+     * @return void
+     */
+    public function cacheOnlineUser(int $userId): void
+    {
+        // cache online visitor
+        $this->cacheUtil->setValue('online_user_' . $userId, 'online', 300);
     }
 }

@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use App\Util\VisitorInfoUtil;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Class VisitorInfoUtilTest
@@ -16,6 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
  *
  * @package App\Tests\Util
  */
+#[CoversClass(VisitorInfoUtil::class)]
 class VisitorInfoUtilTest extends TestCase
 {
     private LoggerInterface $loggerMock;
@@ -37,6 +39,40 @@ class VisitorInfoUtilTest extends TestCase
 
         // create visitor info util instance
         $this->visitorInfoUtil = new VisitorInfoUtil($this->cacheUtilMock, $this->loggerMock, $this->securityUtilMock);
+    }
+
+    /**
+     * Test get request uri
+     *
+     * @return void
+     */
+    public function testGetRequestUri(): void
+    {
+        // set server variables
+        $_SERVER['REQUEST_URI'] = '/test/uri';
+
+        // call tested method
+        $result = $this->visitorInfoUtil->getRequestUri();
+
+        // assert result
+        $this->assertEquals('/test/uri', $result);
+    }
+
+    /**
+     * Test get request method
+     *
+     * @return void
+     */
+    public function testGetRequestMethod(): void
+    {
+        // set server variables
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        // call tested method
+        $result = $this->visitorInfoUtil->getRequestMethod();
+
+        // assert result
+        $this->assertEquals('GET', $result);
     }
 
     /**
@@ -188,7 +224,7 @@ class VisitorInfoUtilTest extends TestCase
         $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.9999.999 Safari/537.36';
 
         // call tested method
-        $result = $this->visitorInfoUtil->getOS();
+        $result = $this->visitorInfoUtil->getOs();
 
         // assert result
         $this->assertEquals('Windows 10', $result);

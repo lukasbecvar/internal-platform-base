@@ -54,7 +54,6 @@ The environment variables are loaded from .env file. You can create .env file in
 | PWA_APP_SUPPORT | Enable pwa app support | true |
 | ADMIN_CONTACT | The system maintener contact email | admin@becvar.xyz |
 | IP_INFO_API | API for get information about visitor ip | http://ip-api.com |
-| EXTERNAL_API_LOG_TOKEN | Token for external api logging | 1234567890 |
 | ANTI_LOG_TOKEN | Token for disable logging | 1234567890 |
 | DATABASE_LOGGING | Enable database logging | true |
 | LOG_LEVEL | Log level | 4 |
@@ -65,7 +64,7 @@ The environment variables are loaded from .env file. You can create .env file in
 | DATABASE_DRIVER | Database driver | pdo_mysql |
 | DATABASE_HOST | Database host | localhost |
 | DATABASE_PORT | Database port | 3306 |
-| DATABASE_NAME | Database name | admin_suite |
+| DATABASE_NAME | Database name | internal_platform |
 | DATABASE_USERNAME | Database user | root |
 | DATABASE_PASSWORD | Database password | root |
 | MAILER_ENABLED | Enable mailer | true |
@@ -80,13 +79,49 @@ The environment variables are loaded from .env file. You can create .env file in
 | PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY | Private key for push notifications | 12938747T6T6R236 |
 
 ## Authentication
-Authentication uses a completely custom user system with a username and password, managed by the application user manager. Only the first user can use the registration form to create admin user. Login uses standard PHP session and cookie for the 'remember me' feature.
+Authentication uses a completely custom user system with a username and password, managed by the application user manager. Only the first user can use the registration form to create an admin user. Login uses standard PHP session and cookie for the 'remember me' feature.
+#### API key authentication
+Backend-to-backend consumers can call any `/api/**` route by reusing an existing user token as an API key and sending it via the `API-KEY` HTTP header. After the middleware validates the token, it hydrates the Symfony session, so the request runs with the same authorizations as if the user had passed through the HTML login form.
+
+**Issuing and rotating tokens**
+- Every user record has a randomly generated value in the `token` column. You can rotate it from *Users Manager → Regenerate authentication token* (route `/manager/users/token/regenerate`) or through your own automation by calling `AuthManager::regenerateSpecificUserToken`.
+- API access is additionally guarded by the `allow_api_access` flag that you must enable to use the user-token as an API key.
+
+**Using the header**
+- Attach the header to any API call: `curl -H "API-KEY: <user-token>" https://internal_platform/api/system/resources`.
+- Only `/api/**` paths accept header-based login. Browser sessions still rely on the standard cookie-based flow.
+- Each API request is fully audited. Invalid or disabled tokens are logged under the `api-authentication` channel so you can track brute-force attempts.
 
 ## Notifications
 Notifications from application are sent to admin users via web push notifications if the admin enables them. It also allows sending alerts directly to the admin's email.
 
 ## Logging
-The system allows storing actions in the database to track the actions of admin suite users and also receive logs from external applications via an API.
+The system stores user actions in the database (respecting `LOG_LEVEL`, anti-log cookies, and `DATABASE_LOGGING`). You can also push structured events from other services through a dedicated API.
+
+#### External log ingestion API
+- **Endpoint**: `POST /api/external/log`
+- **Authentication**: `API-KEY` header with a token that belongs to a user allowed to call the API
+- **Payloads**: either query parameters (`name`, `message`, `level`) or an `application/xml` body with the same fields
+- **Levels**: use the numeric constants from `LogManager` (`1=CRITICAL`, `2=WARNING`, `3=NOTICE`, `4=INFO`). Only levels lower than or equal to the configured `LOG_LEVEL` are saved.
+
+Example with query parameters:
+```bash
+curl -X POST https://internal_platform/api/external/log \
+  -H "API-KEY: <user-token>" \
+  --data-urlencode "name=backup-service" \
+  --data-urlencode "message=Backup finished in 142s" \
+  --data-urlencode "level=4"
+```
+
+Example with XML payload:
+```bash
+curl -X POST https://internal_platform/api/external/log \
+  -H "API-KEY: <user-token>" \
+  -H "Content-Type: application/xml" \
+  -d '<log><name>payment-worker</name><message>Bank API timeout</message><level>2</level></log>'
+```
+
+Successful requests return `{"status":"success"}`; missing fields, invalid XML, or bad credentials respond with `{"status":"error","message":"..."}` and the relevant HTTP code so you can react from the caller.
 
 ## Contributing
 Contributions are welcome! Please fork this repository and submit pull requests for any features, bug fixes, or enhancements. If you have any questions or need help, feel free to open an issue or contact me directly.

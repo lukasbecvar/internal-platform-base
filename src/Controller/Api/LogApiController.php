@@ -3,7 +3,7 @@
 namespace App\Controller\Api;
 
 use Exception;
-use App\Util\AppUtil;
+use App\Util\XmlUtil;
 use App\Manager\LogManager;
 use App\Manager\ErrorManager;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,19 +20,38 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  */
 class LogApiController extends AbstractController
 {
-    private AppUtil $appUtil;
+    private XmlUtil $xmlUtil;
     private LogManager $logManager;
     private ErrorManager $errorManager;
 
-    public function __construct(AppUtil $appUtil, LogManager $logManager, ErrorManager $errorManager)
-    {
-        $this->appUtil = $appUtil;
+    public function __construct(
+        XmlUtil $xmlUtil,
+        LogManager $logManager,
+        ErrorManager $errorManager
+    ) {
+        $this->xmlUtil = $xmlUtil;
         $this->logManager = $logManager;
         $this->errorManager = $errorManager;
     }
 
     /**
      * Handle log from external service
+     *
+     * This endpoint is used in external services.
+     * Supports traditional query parameters or XML payloads
+     * with the following structure:
+     *
+     * XML payload:
+     *  <log>
+     *    <name>string</name>
+     *    <message>string</message>
+     *    <level>int</level>
+     *  </log>
+     *
+     * Request query parameters:
+     *  - name: log name (string)
+     *  - message: log message (string)
+     *  - level: log level (int)
      *
      * @param Request $request The request object
      *
@@ -41,32 +60,32 @@ class LogApiController extends AbstractController
     #[Route('/api/external/log', methods:['POST'], name: 'app_api_external_log')]
     public function externalLog(Request $request): JsonResponse
     {
-        // get access token from request parameter
-        $accessToken = (string) $request->query->get('token');
-
-        // check if token is set
-        if (empty($accessToken)) {
-            return $this->json([
-                'status' => 'error',
-                'message' => 'Parameter "token" is required'
-            ], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        // get api token for authentication
-        $apiToken = $this->appUtil->getEnvValue('EXTERNAL_API_LOG_TOKEN');
-
-        // check is token matches with auth token
-        if ($accessToken != $apiToken) {
-            return $this->json([
-                'status' => 'error',
-                'message' => 'Access token is invalid'
-            ], JsonResponse::HTTP_UNAUTHORIZED);
-        }
-
-        // get log data from request parameters
-        $name = (string) $request->query->get('name');
+        // get log data from request
         $message = (string) $request->query->get('message');
+        $name = (string) $request->query->get('name');
         $level = (int) $request->query->get('level');
+
+        // parse XML payload if provided
+        if ($this->xmlUtil->isXmlRequest($request)) {
+            try {
+                $xmlPayload = $this->xmlUtil->parseXmlPayload($request->getContent());
+            } catch (Exception $e) {
+                return $this->json([
+                    'status' => 'error',
+                    'message' => 'Invalid XML payload: ' . $e->getMessage()
+                ], JsonResponse::HTTP_BAD_REQUEST);
+            }
+
+            if (isset($xmlPayload->name) && (string) $xmlPayload->name !== '') {
+                $name = (string) $xmlPayload->name;
+            }
+            if (isset($xmlPayload->message) && (string) $xmlPayload->message !== '') {
+                $message = (string) $xmlPayload->message;
+            }
+            if (isset($xmlPayload->level) && (string) $xmlPayload->level !== '') {
+                $level = (int) $xmlPayload->level;
+            }
+        }
 
         // check parameters are set
         if (empty($name) || empty($message) || empty($level)) {
@@ -88,7 +107,7 @@ class LogApiController extends AbstractController
         } catch (Exception $e) {
             // log error to exception log
             $this->errorManager->logError(
-                message: $message,
+                message: 'error to log external message: ' . $e->getMessage(),
                 code: JsonResponse::HTTP_INTERNAL_SERVER_ERROR
             );
 

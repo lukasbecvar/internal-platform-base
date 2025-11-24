@@ -82,7 +82,7 @@ class SendNotificationCommand extends Command
         try {
             // send notifications
             $this->notificationsManager->sendNotification(
-                title: 'internal-platform-base notification',
+                title: 'Internal-platform notification',
                 message: $message
             );
 

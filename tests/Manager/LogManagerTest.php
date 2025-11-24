@@ -4,16 +4,19 @@ namespace App\Tests\Manager;
 
 use Exception;
 use App\Entity\Log;
+use App\Entity\User;
 use App\Util\AppUtil;
 use App\Util\CookieUtil;
 use App\Util\SessionUtil;
 use App\Manager\LogManager;
+use App\Tests\CustomTestCase;
 use App\Util\VisitorInfoUtil;
 use App\Manager\ErrorManager;
-use PHPUnit\Framework\TestCase;
 use App\Repository\LogRepository;
+use App\Entity\SentNotificationLog;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -23,7 +26,8 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @package App\Tests\Manager
  */
-class LogManagerTest extends TestCase
+#[CoversClass(LogManager::class)]
+class LogManagerTest extends CustomTestCase
 {
     private LogManager $logManager;
     private AppUtil & MockObject $appUtilMock;
@@ -44,6 +48,17 @@ class LogManagerTest extends TestCase
         $this->errorManagerMock = $this->createMock(ErrorManager::class);
         $this->visitorInfoUtilMock = $this->createMock(VisitorInfoUtil::class);
         $this->entityManagerMock = $this->createMock(EntityManagerInterface::class);
+
+        // mock get reference
+        $this->entityManagerMock->method('getReference')->willReturnCallback(
+            function (string $className, int|string $id) {
+                if ($className === User::class && is_numeric($id)) {
+                    return $this->createUserEntity((int) $id);
+                }
+
+                return null;
+            }
+        );
 
         // create the log manager instance
         $this->logManager = new LogManager(
@@ -162,7 +177,11 @@ class LogManagerTest extends TestCase
         $this->appUtilMock->method('getEnvValue')->willReturn('test-token');
 
         // expect set cookie call
-        $this->cookieUtilMock->expects($this->once())->method('set')->with('anti-log', 'test-token', $this->greaterThan(time()));
+        $this->cookieUtilMock->expects($this->once())->method('set')->with(
+            'anti-log',
+            'test-token',
+            $this->greaterThan(time())
+        );
 
         // call tested method
         $this->logManager->setAntiLog();
@@ -362,12 +381,54 @@ class LogManagerTest extends TestCase
         $logMock->expects($this->once())->method('setStatus')->with($newStatus);
 
         // expect find method to be called
-        $this->repositoryMock->expects($this->once())->method('find')->with($logId)->willReturn($logMock);
+        $this->repositoryMock->expects($this->once())->method('find')->with($logId)
+            ->willReturn($logMock);
 
         // expect flush method to be called
         $this->entityManagerMock->expects($this->once())->method('flush');
 
         // call tested method
         $this->logManager->updateLogStatusById($logId, $newStatus);
+    }
+
+    /**
+     * Test log api access
+     *
+     * @return void
+     */
+    public function testLogApiAccess(): void
+    {
+        // mock get log config
+        $this->appUtilMock->method('isDatabaseLoggingEnabled')->willReturn(true);
+        $this->appUtilMock->method('getEnvValue')->with('LOG_LEVEL')->willReturn('4');
+
+        // mock get visitor info
+        $this->visitorInfoUtilMock->method('getIP')->willReturn('127.0.0.1');
+        $this->visitorInfoUtilMock->method('getUserAgent')->willReturn('UnitTestAgent');
+
+        // mock user identifier getter
+        $this->sessionUtilMock->method('getSessionValue')->with('user-identifier', 0)->willReturn(1);
+
+        // expect process method to be called
+        $this->entityManagerMock->expects($this->once())->method('persist');
+        $this->entityManagerMock->expects($this->once())->method('flush');
+
+        // call tested method
+        $this->logManager->logApiAccess('test-url', 'test-method', 1);
+    }
+
+    /**
+     * Test log sent notification
+     *
+     * @return void
+     */
+    public function testLogSentNotification(): void
+    {
+        // mock entity manager
+        $this->entityManagerMock->expects($this->once())->method('persist')->with($this->isInstanceOf(SentNotificationLog::class));
+        $this->entityManagerMock->expects($this->once())->method('flush');
+
+        // call tested method
+        $this->logManager->logSentNotification('test-title', 'test-message', 1);
     }
 }

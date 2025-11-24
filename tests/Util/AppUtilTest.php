@@ -7,6 +7,7 @@ use App\Util\JsonUtil;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  *
  * @package App\Tests\Util
  */
+#[CoversClass(AppUtil::class)]
 class AppUtilTest extends TestCase
 {
     private AppUtil $appUtil;
@@ -320,11 +322,25 @@ class AppUtilTest extends TestCase
      */
     public function testLoadConfig(): void
     {
-        // expect getJson method call
-        $this->jsonUtilMock->expects($this->once())->method('getJson');
+        $tempDir = sys_get_temp_dir() . '/app_util_' . uniqid();
+        $configDir = $tempDir . '/config/internal';
+        mkdir($configDir, 0777, true);
+        $configPath = $configDir . '/services-monitoring.json';
+        file_put_contents($configPath, '{}');
+
+        $this->kernelInterface->method('getProjectDir')->willReturn($tempDir);
+
+        // expect getJson method call with resolved path
+        $this->jsonUtilMock->expects($this->once())->method('getJson')->with($configPath);
 
         // call tested method
         $this->appUtil->loadConfig('services-monitoring.json');
+
+        // cleanup
+        unlink($configPath);
+        rmdir($configDir);
+        rmdir($tempDir . '/config');
+        rmdir($tempDir);
     }
 
     /**
@@ -403,6 +419,63 @@ class AppUtilTest extends TestCase
 
         // assert results
         $this->assertSame($expectedResults, $result);
+    }
+
+    /**
+     * Test check if future is disabled
+     *
+     * @return void
+     */
+    public function testCheckIfFutureIsDisabled(): void
+    {
+        $tempDir = sys_get_temp_dir() . '/app_util_' . uniqid();
+        $configDir = $tempDir . '/config/internal';
+        mkdir($configDir, 0777, true);
+        $configPath = $configDir . '/feature-flags.json';
+        file_put_contents($configPath, '{}');
+
+        $this->kernelInterface->method('getProjectDir')->willReturn($tempDir);
+        $this->jsonUtilMock->expects($this->once())->method('getJson')->with($configPath)->willReturn(['monitoring' => false]);
+
+        // call tested method
+        $result = $this->appUtil->isFeatureFlagDisabled('monitoring');
+
+        // assert result
+        $this->assertIsBool($result);
+        $this->assertTrue($result);
+
+        unlink($configPath);
+        rmdir($configDir);
+        rmdir($tempDir . '/config');
+        rmdir($tempDir);
+    }
+
+    /**
+     * Test check if feature flag is disabled when flag is not configured
+     *
+     * @return void
+     */
+    public function testCheckIfFeatureFlagDisabledWhenFlagIsNotConfigured(): void
+    {
+        $tempDir = sys_get_temp_dir() . '/app_util_' . uniqid();
+        $configDir = $tempDir . '/config/internal';
+        mkdir($configDir, 0777, true);
+        $configPath = $configDir . '/feature-flags.json';
+        file_put_contents($configPath, '{}');
+
+        $this->kernelInterface->method('getProjectDir')->willReturn($tempDir);
+        $this->jsonUtilMock->expects($this->once())->method('getJson')->with($configPath)->willReturn(['other-flag' => true]);
+
+        // call tested method
+        $result = $this->appUtil->isFeatureFlagDisabled('monitoring');
+
+        // assert result
+        $this->assertFalse($result);
+
+        unlink($configPath);
+        rmdir($configDir);
+        rmdir($tempDir . '/config');
+        rmdir($tempDir);
     }
 
     /**

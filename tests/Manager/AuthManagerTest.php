@@ -20,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -29,6 +30,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @package App\Tests\Manager
  */
+#[CoversClass(AuthManager::class)]
 class AuthManagerTest extends TestCase
 {
     private AuthManager $authManager;
@@ -1039,6 +1041,119 @@ class AuthManagerTest extends TestCase
     }
 
     /**
+     * Test authenticate with api key returns false and logs when token invalid
+     *
+     * @return void
+     */
+    public function testAuthenticateWithApiKeyReturnsFalseWhenTokenInvalid(): void
+    {
+        // mock invalid token
+        $token = 'invalid-token';
+        $this->userManagerMock->expects($this->once())->method('getUserByToken')->with($token)->willReturn(null);
+
+        // expect log manager call
+        $this->logManagerMock->expects($this->once())->method('log')->with(
+            'api-authentication',
+            'invalid api key authentication with token: ' . $token,
+            LogManager::LEVEL_CRITICAL
+        );
+
+        // expect set session call (never)
+        $this->sessionUtilMock->expects($this->never())->method('setSession');
+
+        // call tested method
+        $result = $this->authManager->authenticateWithApiKey($token);
+
+        // assert result
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test authenticate with api key hydrates session when token valid and API access enabled
+     *
+     * @return void
+     */
+    public function testAuthenticateWithApiKeyHydratesSessionWhenApiAccessAllowed(): void
+    {
+        // mock valid token
+        $token = 'valid-token';
+        $user = new User();
+        $reflection = new ReflectionClass($user);
+        $idProperty = $reflection->getProperty('id');
+        $idProperty->setAccessible(true);
+        $idProperty->setValue($user, 42);
+        $user->setAllowApiAccess(true);
+        $this->userManagerMock->expects($this->once())->method('getUserByToken')->with($token)->willReturn($user);
+
+        // mock request uri & method
+        $this->visitorInfoUtilMock->method('getRequestUri')->willReturn('/test-url');
+        $this->visitorInfoUtilMock->method('getRequestMethod')->willReturn('test-method');
+
+        // expect set session calls
+        $expectedCalls = [
+            ['user-token', $token],
+            ['user-identifier', '42']
+        ];
+        $this->sessionUtilMock->expects($this->exactly(2))->method('setSession')
+            ->willReturnCallback(function (string $name, string $value) use (&$expectedCalls): void {
+                $expected = array_shift($expectedCalls);
+                if ($expected === null) {
+                    $this->fail('Unexpected setSession call');
+                }
+                [$expectedName, $expectedValue] = $expected;
+                $this->assertEquals($expectedName, $name);
+                $this->assertEquals($expectedValue, $value);
+            });
+
+        // expect log manager call (never)
+        $this->logManagerMock->expects($this->never())->method('log');
+
+        // expect log api access call
+        $this->logManagerMock->expects($this->once())->method('logApiAccess')->with(
+            $this->equalTo('/test-url'),
+            $this->equalTo('test-method'),
+            $this->equalTo(42)
+        );
+
+        // call tested method
+        $result = $this->authManager->authenticateWithApiKey($token);
+
+        // assert result
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test authenticate with api key denied when API access disabled
+     *
+     * @return void
+     */
+    public function testAuthenticateWithApiKeyDeniedWhenApiAccessDisabled(): void
+    {
+        // mock user
+        $token = 'valid-token';
+        $user = new User();
+        $user->setUsername('api-user');
+        $user->setAllowApiAccess(false);
+        $this->userManagerMock->expects($this->once())->method('getUserByToken')->with($token)->willReturn($user);
+
+        // expect log manager call
+        $this->logManagerMock->expects($this->once())->method('log')->with(
+            'api-authentication',
+            'api key authentication: api-user is not allowed to use api',
+            LogManager::LEVEL_CRITICAL
+        );
+
+        // expect session not set
+        $this->sessionUtilMock->expects($this->never())->method('setSession');
+
+        // call tested method
+        $result = $this->authManager->authenticateWithApiKey($token);
+
+        // assert result
+        $this->assertFalse($result);
+    }
+
+    /**
      * Test regenerate user token when user does not exist
      *
      * @return void
@@ -1071,6 +1186,20 @@ class AuthManagerTest extends TestCase
 
         // call test method
         $this->authManager->cacheOnlineUser(123);
+    }
+
+    /**
+     * Test get online users list
+     *
+     * @return void
+     */
+    public function testGetOnlineUsersList(): void
+    {
+        // call tested method
+        $result = $this->authManager->getOnlineUsersList();
+
+        // assert result
+        $this->assertIsArray($result);
     }
 
     /**
@@ -1113,7 +1242,8 @@ class AuthManagerTest extends TestCase
         $cacheItemMock->expects($this->once())->method('get')->willReturn('offline');
 
         // expect cache get
-        $this->cacheUtilMock->expects($this->once())->method('getValue')->with($userCacheKey)->willReturn($cacheItemMock);
+        $this->cacheUtilMock->expects($this->once())->method('getValue')->with($userCacheKey)
+            ->willReturn($cacheItemMock);
 
         // call test method
         $status = $this->authManager->getUserStatus($userId);

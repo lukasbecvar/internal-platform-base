@@ -4,6 +4,7 @@ namespace App\Middleware;
 
 use App\Util\SecurityUtil;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Class EscapeRequestDataMiddleware
@@ -15,10 +16,12 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 class EscapeRequestDataMiddleware
 {
     private SecurityUtil $securityUtil;
+    private UrlGeneratorInterface $urlGenerator;
 
-    public function __construct(SecurityUtil $securityUtil)
+    public function __construct(SecurityUtil $securityUtil, UrlGeneratorInterface $urlGenerator)
     {
         $this->securityUtil = $securityUtil;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -31,6 +34,15 @@ class EscapeRequestDataMiddleware
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
+
+        // excluded controller paths from escaping
+        if (
+            // config manager
+            $request->getPathInfo() == $this->urlGenerator->generate('app_internal_config_update') ||
+            $request->getPathInfo() == $this->urlGenerator->generate('app_internal_config_show')
+        ) {
+            return;
+        }
 
         // get form data
         $requestData = $request->query->all() + $request->request->all();

@@ -2,10 +2,13 @@
 
 namespace App\Tests\Controller\Component;
 
+use App\Manager\UserManager;
 use App\Tests\CustomTestCase;
 use Symfony\Component\String\ByteString;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use App\Controller\Component\AccountSettingsController;
 
 /**
  * Class AccountSettingsControllerTest
@@ -14,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @package App\Tests\Controller\Component
  */
+#[CoversClass(AccountSettingsController::class)]
 class AccountSettingsControllerTest extends CustomTestCase
 {
     private KernelBrowser $client;
@@ -37,6 +41,7 @@ class AccountSettingsControllerTest extends CustomTestCase
 
         // assert response
         $this->assertSelectorTextContains('title', 'Internal platform');
+        $this->assertSelectorTextContains('p', 'Manage your account preferences and security');
         $this->assertSelectorExists('h1:contains("Account Settings")');
         $this->assertSelectorExists('div:contains("Profile Picture")');
         $this->assertSelectorExists('div:contains("Username")');
@@ -77,6 +82,7 @@ class AccountSettingsControllerTest extends CustomTestCase
 
         // assert response
         $this->assertSelectorTextContains('title', 'Internal platform');
+        $this->assertAnySelectorTextContains('p', 'Update your account profile image');
         $this->assertSelectorExists('h1:contains("Change Profile Picture")');
         $this->assertSelectorExists('input[name="profile_pic_change_form[profile-pic]"]');
         $this->assertSelectorExists('button:contains("Update Profile Picture")');
@@ -95,6 +101,7 @@ class AccountSettingsControllerTest extends CustomTestCase
 
         // assert response
         $this->assertSelectorTextContains('title', 'Internal platform');
+        $this->assertAnySelectorTextContains('p', 'Update your account username');
         $this->assertSelectorExists('h1:contains("Change Username")');
         $this->assertSelectorExists('input[name="username_change_form[username]"]');
         $this->assertSelectorExists('button:contains("Update Username")');
@@ -160,6 +167,7 @@ class AccountSettingsControllerTest extends CustomTestCase
 
         // assert response
         $this->assertSelectorTextContains('title', 'Internal platform');
+        $this->assertSelectorTextContains('title', 'Internal platform');
         $this->assertSelectorExists('h1:contains("Change Username")');
         $this->assertSelectorExists('input[name="username_change_form[username]"]');
         $this->assertSelectorExists('button:contains("Update Username")');
@@ -196,6 +204,7 @@ class AccountSettingsControllerTest extends CustomTestCase
 
         // assert response
         $this->assertSelectorTextContains('title', 'Internal platform');
+        $this->assertAnySelectorTextContains('p', 'Update your account security password');
         $this->assertSelectorExists('h1:contains("Change Password")');
         $this->assertSelectorExists('input[name="password_change_form[password][first]"]');
         $this->assertSelectorExists('input[name="password_change_form[password][second]"]');
@@ -324,6 +333,56 @@ class AccountSettingsControllerTest extends CustomTestCase
         ]);
 
         // assert response
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
+    }
+
+    /**
+     * Test toggle API access with invalid status input
+     *
+     * @return void
+     */
+    public function testToggleApiAccessWithInvalidStatus(): void
+    {
+        $this->client->request('POST', '/account/settings/api/access', [
+            'status' => 'invalid-status'
+        ]);
+
+        // assert response
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Test toggle API access endpoint with valid payload
+     *
+     * @return void
+     */
+    public function testToggleApiAccessWithValidStatus(): void
+    {
+        // mock user manager
+        $userManagerMock = $this->createMock(UserManager::class);
+        $userManagerMock->expects($this->once())->method('updateApiAccessStatus')->with(1, true, 'account-settings');
+        static::getContainer()->set(UserManager::class, $userManagerMock);
+
+        $this->client->request('POST', '/account/settings/api/access', [
+            'status' => 'enable'
+        ]);
+
+        // assert response
+        $this->assertResponseRedirects('/account/settings');
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
+    }
+
+    /**
+     * Test API token regeneration endpoint success path
+     *
+     * @return void
+     */
+    public function testAccountSettingsTokenRegenerateSuccess(): void
+    {
+        $this->client->request('POST', '/account/settings/api/token/regenerate');
+
+        // assert response
+        $this->assertResponseRedirects('/account/settings');
         $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
     }
 }

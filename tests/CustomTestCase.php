@@ -3,10 +3,9 @@
 namespace App\Tests;
 
 use DateTime;
-use Exception;
 use App\Entity\User;
+use ReflectionProperty;
 use App\Manager\AuthManager;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -38,6 +37,7 @@ class CustomTestCase extends WebTestCase
         $mockUser->setRegisterTime(new DateTime());
         $mockUser->setLastLoginTime(new DateTime());
         $mockUser->setToken('fba6eb31278954ce68feb303cbd34bfe');
+        $mockUser->setAllowApiAccess(true);
         $mockUser->setProfilePic('default_pic');
 
         // create mock AuthManager mock instance
@@ -49,6 +49,12 @@ class CustomTestCase extends WebTestCase
         // mock isLoggedInUserAdmin to return true
         $authManager->method('isLoggedInUserAdmin')->willReturn(true);
 
+        // mock logged user id getter
+        $authManager->method('getLoggedUserId')->willReturn(1);
+
+        // mock token regeneration to succeed by default
+        $authManager->method('regenerateSpecificUserToken')->willReturn(true);
+
         // mock getLoggedUserRepository to return test mock user
         $authManager->method('getLoggedUserRepository')->willReturn($mockUser);
 
@@ -57,30 +63,30 @@ class CustomTestCase extends WebTestCase
     }
 
     /**
-     * Get random user id from database
+     * Create a test user entity
      *
-     * @param EntityManagerInterface $entityManager The entity manager
+     * @param int $id The user ID
      *
-     * @throws Exception If no users found in the database
-     *
-     * @return int The user id
+     * @return User The test user entity
      */
-    protected function getRandomUserId(EntityManagerInterface $entityManager): int
+    public function createUserEntity(int $id): User
     {
-        $userRepository = $entityManager->getRepository(User::class);
+        $user = new User();
+        $user->setUsername('test-user-' . $id);
+        $user->setPassword('password');
+        $user->setRole('ADMIN');
+        $user->setIpAddress('127.0.0.1');
+        $user->setUserAgent('PHPUnit');
+        $user->setRegisterTime(new DateTime());
+        $user->setLastLoginTime(new DateTime());
+        $user->setToken('token-' . $id . uniqid());
+        $user->setAllowApiAccess(true);
+        $user->setProfilePic('pic');
 
-        /** @var array<int, array{id: int}> $userIds */
-        $userIds = $userRepository->createQueryBuilder('u')
-            ->select('u.id')
-            ->getQuery()
-            ->getArrayResult();
+        $reflection = new ReflectionProperty(User::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($user, $id);
 
-        // check if no users found in the database
-        if (count($userIds) === 0) {
-            throw new Exception('No users found in the database.');
-        }
-
-        // return a random user id from the array of user ids
-        return $userIds[array_rand($userIds)]['id'];
+        return $user;
     }
 }

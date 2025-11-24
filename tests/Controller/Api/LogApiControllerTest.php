@@ -3,6 +3,8 @@
 namespace App\Tests\Controller\Api;
 
 use App\Tests\CustomTestCase;
+use App\Controller\Api\LogApiController;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -13,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @package App\Tests\Controller
  */
+#[CoversClass(LogApiController::class)]
 class LogApiControllerTest extends CustomTestCase
 {
     private KernelBrowser $client;
@@ -36,7 +39,7 @@ class LogApiControllerTest extends CustomTestCase
     }
 
     /**
-     * Test external log request without token
+     * Test external log request without api key
      *
      * @return void
      */
@@ -44,31 +47,20 @@ class LogApiControllerTest extends CustomTestCase
     {
         $this->client->request('POST', '/api/external/log');
 
-        /** @var array<mixed> $responseData */
-        $responseData = json_decode(($this->client->getResponse()->getContent() ?: '{}'), true);
-
         // assert response
-        $this->assertEquals('Parameter "token" is required', $responseData['message']);
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
     }
 
     /**
-     * Test external log request with invalid token
+     * Test external log request with invalid api key
      *
      * @return void
      */
     public function testExternalLogRequestWithInvalidToken(): void
     {
-        $this->client->request('POST', '/api/external/log', [
-            'token' => 'invalid'
-        ]);
-
-        /** @var array<mixed> $responseData */
-        $responseData = json_decode(($this->client->getResponse()->getContent() ?: '{}'), true);
-
+        $this->client->request('POST', '/api/external/log', server: ['API-KEY' => 'invalid']);
         // assert response
-        $this->assertEquals('Access token is invalid', $responseData['message']);
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        $this->assertResponseStatusCodeSame(Response::HTTP_FOUND);
     }
 
     /**
@@ -78,9 +70,8 @@ class LogApiControllerTest extends CustomTestCase
      */
     public function testExternalLogRequestWithoutParameters(): void
     {
-        $this->client->request('POST', '/api/external/log', [
-            'token' => $_ENV['EXTERNAL_API_LOG_TOKEN']
-        ]);
+        $this->simulateLogin($this->client);
+        $this->client->request('POST', '/api/external/log', server: ['API-KEY' => 'fba6eb31278954ce68feb303cbd34bfe']);
 
         /** @var array<mixed> $responseData */
         $responseData = json_decode(($this->client->getResponse()->getContent() ?: '{}'), true);
@@ -97,12 +88,35 @@ class LogApiControllerTest extends CustomTestCase
      */
     public function testExternalLogRequestWithValidParameters(): void
     {
+        $this->simulateLogin($this->client);
         $this->client->request('POST', '/api/external/log', [
-            'token' => $_ENV['EXTERNAL_API_LOG_TOKEN'],
             'name' => 'external-log',
             'message' => 'test message',
             'level' => 1
-        ]);
+        ], server: ['API-KEY' => 'fba6eb31278954ce68feb303cbd34bfe']);
+
+        /** @var array<mixed> $responseData */
+        $responseData = json_decode(($this->client->getResponse()->getContent() ?: '{}'), true);
+
+        // assert response
+        $this->assertEquals('Log message has been logged', $responseData['message']);
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    }
+
+    /**
+     * Test external log request with XML payload
+     *
+     * @return void
+     */
+    public function testExternalLogRequestWithXmlPayload(): void
+    {
+        $this->simulateLogin($this->client);
+        $this->client->request(
+            'POST',
+            '/api/external/log',
+            server: ['API-KEY' => 'fba6eb31278954ce68feb303cbd34bfe', 'CONTENT_TYPE' => 'application/xml'],
+            content: '<log><name>xml-log</name><message>xml message</message><level>2</level></log>'
+        );
 
         /** @var array<mixed> $responseData */
         $responseData = json_decode(($this->client->getResponse()->getContent() ?: '{}'), true);

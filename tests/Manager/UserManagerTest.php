@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Class UserManagerTest
@@ -20,6 +21,7 @@ use PHPUnit\Framework\MockObject\MockObject;
  *
  * @package App\Tests\Manager
  */
+#[CoversClass(UserManager::class)]
 class UserManagerTest extends TestCase
 {
     private UserManager $userManager;
@@ -431,5 +433,65 @@ class UserManagerTest extends TestCase
 
         // call tested method
         $this->userManager->updateProfilePicture($userId, $newProfilePicture);
+    }
+
+    /**
+     * Test enabling API access through account settings
+     *
+     * @return void
+     */
+    public function testUpdateApiAccessStatusEnable(): void
+    {
+        // mock user repository
+        $user = new User();
+        $user->setUsername('apiUser');
+        $user->setAllowApiAccess(false);
+        $this->userRepositoryMock->expects($this->once())->method('findOneBy')->with(['id' => 1])->willReturn($user);
+
+        // expect flush call
+        $this->entityManagerMock->expects($this->once())->method('flush');
+
+        // expect log manager call
+        $this->logManagerMock->expects($this->once())->method('log')->with(
+            'account-settings',
+            'api access enabled for user: ' . $user->getUsername(),
+            LogManager::LEVEL_INFO
+        );
+
+        // call tested method
+        $this->userManager->updateApiAccessStatus(1, true, 'account-settings');
+
+        // assert result
+        $this->assertTrue($user->getAllowApiAccess());
+    }
+
+    /**
+     * Test disabling API access from users manager context
+     *
+     * @return void
+     */
+    public function testUpdateApiAccessStatusDisable(): void
+    {
+        // mock user repository
+        $user = new User();
+        $user->setUsername('managedUser');
+        $user->setAllowApiAccess(true);
+        $this->userRepositoryMock->expects($this->once())->method('findOneBy')->with(['id' => 2])->willReturn($user);
+
+        // expect flush call
+        $this->entityManagerMock->expects($this->once())->method('flush');
+
+        // expect log manager call
+        $this->logManagerMock->expects($this->once())->method('log')->with(
+            'user-manager',
+            'api access disabled for user: ' . $user->getUsername(),
+            LogManager::LEVEL_WARNING
+        );
+
+        // call tested method
+        $this->userManager->updateApiAccessStatus(2, false, 'user-manager');
+
+        // assert result
+        $this->assertFalse($user->getAllowApiAccess());
     }
 }

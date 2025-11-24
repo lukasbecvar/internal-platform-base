@@ -6,10 +6,12 @@ use App\Util\SecurityUtil;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\HttpFoundation\Request;
+use PHPUnit\Framework\Attributes\CoversClass;
 use App\Middleware\EscapeRequestDataMiddleware;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Class EscapeRequestDataMiddlewareTest
@@ -18,6 +20,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
  *
  * @package App\Tests\Middleware
  */
+#[CoversClass(EscapeRequestDataMiddleware::class)]
 class EscapeRequestDataMiddlewareTest extends TestCase
 {
     private RequestStack $requestStack;
@@ -29,12 +32,13 @@ class EscapeRequestDataMiddlewareTest extends TestCase
         // mock dependencies
         $this->requestStack = new RequestStack();
         $this->securityUtil = $this->createMock(SecurityUtil::class);
+        $urlGeneratorInterface = $this->createMock(UrlGeneratorInterface::class);
         $this->securityUtil->method('escapeString')->willReturnCallback(function (string $value) {
             return htmlspecialchars($value, ENT_QUOTES | ENT_HTML5);
         });
 
         // create middleware instance
-        $this->middleware = new EscapeRequestDataMiddleware($this->securityUtil);
+        $this->middleware = new EscapeRequestDataMiddleware($this->securityUtil, $urlGeneratorInterface);
     }
 
     /**

@@ -4,6 +4,8 @@ namespace App\Tests\Controller\Auth;
 
 use App\Manager\UserManager;
 use Symfony\Component\String\ByteString;
+use App\Controller\Auth\RegisterController;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -15,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  *
  * @package App\Tests\Controller\Auth
  */
+#[CoversClass(RegisterController::class)]
 class RegisterControllerTest extends WebTestCase
 {
     private KernelBrowser $client;
@@ -109,6 +112,37 @@ class RegisterControllerTest extends WebTestCase
         $this->assertSelectorExists('input[name="registration_form[password][second]"]');
         $this->assertSelectorTextContains('button', 'Create Account');
         $this->assertSelectorTextContains('li:contains("The values do not match.")', 'The values do not match.');
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    }
+
+    /**
+     * Test submit register form when password is the same as username
+     *
+     * @return void
+     */
+    public function testSubmitRegisterFormWhenPasswordIsTheSameAsUsername(): void
+    {
+        $crawler = $this->client->request('GET', '/register');
+
+        // get the form
+        $form = $crawler->selectButton('Create Account')->form();
+
+        // fill form inputs
+        $form['registration_form[username]'] = 'valid-testing-username';
+        $form['registration_form[password][first]'] = 'valid-testing-username';
+        $form['registration_form[password][second]'] = 'valid-testing-username';
+
+        // submit the form
+        $this->client->submit($form);
+
+        // assert response
+        $this->assertSelectorTextContains('h1', 'Create Account');
+        $this->assertSelectorExists('form[name="registration_form"]');
+        $this->assertSelectorExists('input[name="registration_form[username]"]');
+        $this->assertSelectorExists('input[name="registration_form[password][first]"]');
+        $this->assertSelectorExists('input[name="registration_form[password][second]"]');
+        $this->assertSelectorTextContains('button', 'Create Account');
+        $this->assertSelectorTextContains('li:contains("Your password cannot be the same as your username")', 'Your password cannot be the same as your username');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 

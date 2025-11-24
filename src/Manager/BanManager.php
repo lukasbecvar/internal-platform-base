@@ -62,13 +62,32 @@ class BanManager
             );
         }
 
+        // get banned user and issuer
+        $bannedUser = $this->userManager->getUserReference($userId);
+        $issuerId = $this->authManager->getLoggedUserId();
+        $issuer = $issuerId > 0 ? $this->userManager->getUserReference($issuerId) : null;
+
+        if ($bannedUser === null) {
+            $this->errorManager->handleError(
+                message: 'invalid user context for ban operation',
+                code: Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        if ($issuerId > 0 && $issuer === null) {
+            $this->errorManager->handleError(
+                message: 'invalid issuer context for ban operation',
+                code: Response::HTTP_BAD_REQUEST
+            );
+        }
+
         // create banned entity
         $banned = new Banned();
         $banned->setReason($reason)
             ->setStatus('active')
             ->setTime(new DateTime())
-            ->setBannedById($this->authManager->getLoggedUserId())
-            ->setBannedUserId($userId);
+            ->setBannedBy($issuer)
+            ->setBannedUser($bannedUser);
 
         // persist and flush ban to database
         try {

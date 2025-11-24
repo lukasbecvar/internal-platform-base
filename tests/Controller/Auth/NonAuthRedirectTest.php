@@ -30,6 +30,7 @@ class NonAuthRedirectTest extends WebTestCase
      */
     private const ROUTES = [
         'api' => [
+            ['method' => 'POST', 'url' => '/api/external/log'],
             ['method' => 'GET', 'url' => '/api/notifications/enabled'],
             ['method' => 'POST', 'url' => '/api/notifications/subscribe'],
             ['method' => 'GET', 'url' => '/api/notifications/public-key']
@@ -48,18 +49,28 @@ class NonAuthRedirectTest extends WebTestCase
             ['method' => 'GET', 'url' => '/manager/users/ban'],
             ['method' => 'GET', 'url' => '/manager/users/delete'],
             ['method' => 'GET', 'url' => '/manager/users/register'],
+            ['method' => 'GET', 'url' => '/manager/users/api-access'],
             ['method' => 'POST', 'url' => '/manager/users/role/update'],
             ['method' => 'GET', 'url' => '/manager/users/token/regenerate']
         ],
         'config_manager' => [
-            ['method' => 'GET', 'url' => '/settings']
+            ['method' => 'GET', 'url' => '/settings'],
+            ['method' => 'GET', 'url' => '/settings/internal'],
+            ['method' => 'GET', 'url' => '/settings/internal/show'],
+            ['method' => 'GET', 'url' => '/settings/feature-flags'],
+            ['method' => 'GET', 'url' => '/settings/internal/create'],
+            ['method' => 'GET', 'url' => '/settings/internal/delete'],
+            ['method' => 'POST', 'url' => '/settings/internal/update'],
+            ['method' => 'GET', 'url' => '/settings/feature-flags/update']
         ],
         'account_settings' => [
             ['method' => 'GET', 'url' => '/account/settings'],
             ['method' => 'GET', 'url' => '/manager/users/profile'],
+            ['method' => 'POST', 'url' => '/account/settings/api/access'],
             ['method' => 'GET', 'url' => '/account/settings/change/picture'],
             ['method' => 'GET', 'url' => '/account/settings/change/username'],
-            ['method' => 'GET', 'url' => '/account/settings/change/password']
+            ['method' => 'GET', 'url' => '/account/settings/change/password'],
+            ['method' => 'POST', 'url' => '/account/settings/api/token/regenerate']
         ],
         'logs_manager' => [
             ['method' => 'GET', 'url' => '/manager/logs'],

@@ -5,11 +5,14 @@ namespace App\Manager;
 use DateTime;
 use Exception;
 use App\Entity\Log;
+use App\Entity\User;
 use App\Util\AppUtil;
 use App\Util\CookieUtil;
 use App\Util\SessionUtil;
+use App\Entity\ApiAccessLog;
 use App\Util\VisitorInfoUtil;
 use App\Repository\LogRepository;
+use App\Entity\SentNotificationLog;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -104,12 +107,17 @@ class LogManager
             ->setTime(new DateTime())
             ->setLevel($level);
 
-            // set user id if user logged in
-            $userId = $this->sessionUtil->getSessionValue('user-identifier', 0);
+        // set user (if user identifier is set)
+        $userId = $this->sessionUtil->getSessionValue('user-identifier', 0);
         if (is_numeric($userId)) {
-            $log->setUserId((int) $userId);
-        } else {
-            $log->setUserId(0);
+            $userId = (int) $userId;
+            if ($userId > 0) {
+                /** @var User|null $user */
+                $user = $this->entityManager->find(User::class, $userId);
+                if ($user !== null) {
+                    $log->setUser($user);
+                }
+            }
         }
 
         try {
@@ -192,7 +200,8 @@ class LogManager
         // get logs count
         if ($status == 'all') {
             if ($userId != 0) {
-                $count = $this->logRepository->count(['user_id' => $userId]);
+                $user = $userId > 0 ? $this->entityManager->getReference(User::class, (int) $userId) : null;
+                $count = $user !== null ? $this->logRepository->count(['user' => $user]) : 0;
             } else {
                 $count = $this->logRepository->count();
             }
@@ -210,10 +219,7 @@ class LogManager
      */
     public function getAuthLogsCount(): int
     {
-        $count = $this->logRepository->count([
-            'name' => 'authenticator',
-            'status' => 'UNREADED'
-        ]);
+        $count = $this->logRepository->count(['name' => 'authenticator', 'status' => 'UNREADED']);
 
         return $count;
     }
@@ -238,7 +244,8 @@ class LogManager
         // get logs list
         if ($status == 'all') {
             if ($userId != 0) {
-                $logs = $this->logRepository->findBy(['user_id' => $userId], null, $perPage, $offset);
+                $user = $userId > 0 ? $this->entityManager->getReference(User::class, (int) $userId) : null;
+                $logs = $user !== null ? $this->logRepository->findBy(['user' => $user], null, $perPage, $offset) : [];
             } else {
                 $logs = $this->logRepository->findBy([], null, $perPage, $offset);
             }
@@ -317,6 +324,86 @@ class LogManager
         } catch (Exception $e) {
             $this->errorManager->handleError(
                 message: 'error to set all logs status to "READED": ' . $e,
+                code: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Log api access
+     *
+     * @param string $url The url of the api access
+     * @param string $method The method of the api access
+     * @param int $userId The id of the user who made the api access
+     *
+     * @return void
+     */
+    public function logApiAccess(string $url, string $method, int $userId): void
+    {
+        // get user reference
+        $user = $userId > 0 ? $this->entityManager->getReference(User::class, (int) $userId) : null;
+        if ($user === null) {
+            $this->errorManager->logError(
+                message: 'log api access error: invalid user id',
+                code: Response::HTTP_BAD_REQUEST
+            );
+            return;
+        }
+
+        // create log entity
+        $log = new ApiAccessLog();
+        $log->setUrl($url)
+            ->setMethod($method)
+            ->setTime(new DateTime())
+            ->setUser($user);
+
+        try {
+            // persist and flush log to database
+            $this->entityManager->persist($log);
+            $this->entityManager->flush();
+        } catch (Exception $e) {
+            $this->errorManager->logError(
+                message: 'log api access error: ' . $e->getMessage(),
+                code: Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    /**
+     * Log sent notification
+     *
+     * @param string $title The title of the notification
+     * @param string $message The body of the notification
+     * @param int $receiverId The receiver id of the notification
+     *
+     * @return void
+     */
+    public function logSentNotification(string $title, string $message, int $receiverId): void
+    {
+        // get receiver reference
+        $receiver = $receiverId > 0 ? $this->entityManager->getReference(User::class, (int) $receiverId) : null;
+        if ($receiver === null) {
+            $this->errorManager->logError(
+                message: 'log sent notification error: invalid receiver id',
+                code: Response::HTTP_BAD_REQUEST
+            );
+            return;
+        }
+
+        // create sent notification log entity
+        $log = new SentNotificationLog();
+        $log->setTitle($title)
+            ->setMessage($message)
+            ->setSentTime(new DateTime())
+            ->setReceiver($receiver);
+
+        try {
+            // persist and flush log to database
+            $this->entityManager->persist($log);
+            $this->entityManager->flush();
+        } catch (Exception $e) {
+            $this->errorManager->logError(
+                message: 'log sent notification error: ' . $e->getMessage(),
                 code: Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }

@@ -9,11 +9,12 @@ use App\Manager\LogManager;
 use App\Manager\UserManager;
 use App\Manager\AuthManager;
 use App\Manager\ErrorManager;
-use PHPUnit\Framework\TestCase;
+use App\Tests\CustomTestCase;
 use App\Repository\BannedRepository;
 use App\Manager\NotificationsManager;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Class BanManagerTest
@@ -22,7 +23,8 @@ use PHPUnit\Framework\MockObject\MockObject;
  *
  * @package App\Tests\Manager
  */
-class BanManagerTest extends TestCase
+#[CoversClass(BanManager::class)]
+class BanManagerTest extends CustomTestCase
 {
     private BanManager $banManager;
     private LogManager & MockObject $logManagerMock;
@@ -46,6 +48,11 @@ class BanManagerTest extends TestCase
 
         // mock ban repository
         $this->entityManagerMock->method('getRepository')->willReturn($this->banRepositoryMock);
+
+        // mock get reference
+        $this->entityManagerMock->method('getReference')->willReturnCallback(function (int $id) {
+            return $this->createUserEntity($id);
+        });
 
         // create ban manager instance
         $this->banManager = new BanManager(
@@ -78,12 +85,7 @@ class BanManagerTest extends TestCase
         // mock get logged user repository
         $this->authManagerMock->method('getLoggedUserId')->willReturn($loggedUserId);
         $this->authManagerMock->method('getLoggedUserRepository')->willReturn($userMock);
-
-        // mock ban repository
-        $this->banRepositoryMock->method('findOneBy')->with([
-            'banned_user_id' => $userId,
-            'status' => 'active'
-        ])->willReturn(null);
+        $this->banRepositoryMock->method('isBanned')->with($userId)->willReturn(false);
 
         // expect log manager call
         $this->logManagerMock->expects($this->once())->method('log')->with(
@@ -151,7 +153,7 @@ class BanManagerTest extends TestCase
 
         // mock banned entity
         $banned = new Banned();
-        $banned->setBannedUserId($userId);
+        $banned->setBannedUser($this->createUserEntity($userId));
         $banned->setStatus('active');
 
         // mock user entity object

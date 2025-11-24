@@ -48,6 +48,9 @@ services:
         build:
             context: .
             dockerfile: ./.docker/Dockerfile.dev
+            args:
+                WWWGROUP: ${LOCAL_GID:-1000}
+                WWWUSER: ${LOCAL_UID:-1000}
         container_name: internal_platform_website
         restart: always
         depends_on:

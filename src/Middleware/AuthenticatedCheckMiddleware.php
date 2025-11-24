@@ -38,22 +38,37 @@ class AuthenticatedCheckMiddleware
         $pathInfo = $request->getPathInfo();
 
         // check if route is excluded from authentication check
-        if (
-            $pathInfo !== '/api/external/log' &&
-            $pathInfo !== '/login' &&
-            $pathInfo !== '/register' &&
-            $pathInfo !== '/' &&
-            !str_starts_with($pathInfo, '/error') &&
-            !preg_match('#^/(_profiler|_wdt)#', $pathInfo)
-        ) {
-            // check if user is logged in
-            if (!$this->authManager->isUserLogedin()) {
-                // get login page route route
-                $loginUrl = $this->urlGenerator->generate('app_auth_login');
+        if (!$this->isExcludedPath($pathInfo)) {
+            $request = $event->getRequest();
 
-                // redirect to login page
+            // allow API access via API-KEY header only for /api routes
+            if (str_starts_with($pathInfo, '/api') && $request->headers->has('API-KEY')) {
+                $apiToken = (string) $request->headers->get('API-KEY');
+                if ($apiToken !== '' && $this->authManager->authenticateWithApiKey($apiToken)) {
+                    return;
+                }
+            }
+
+            if (!$this->authManager->isUserLogedin()) {
+                $loginUrl = $this->urlGenerator->generate('app_auth_login');
                 $event->setResponse(new RedirectResponse($loginUrl));
             }
         }
+    }
+
+    /**
+     * Check if path is excluded from authentication check
+     *
+     * @param string $pathInfo
+     *
+     * @return bool
+     */
+    private function isExcludedPath(string $pathInfo): bool
+    {
+        return $pathInfo === '/register'
+            || $pathInfo === '/login'
+            || $pathInfo === '/'
+            || str_starts_with($pathInfo, '/error')
+            || preg_match('#^/(_profiler|_wdt)#', $pathInfo);
     }
 }

@@ -26,6 +26,46 @@ class VisitorInfoUtil
     }
 
     /**
+     * Get request uri
+     *
+     * @return string The request uri
+     */
+    public function getRequestUri(): string
+    {
+        $uri = $_SERVER['REQUEST_URI'];
+
+        // check if request uri is valid
+        if (empty($uri) || !is_string($uri)) {
+            return 'Unknown';
+        }
+
+        // escape uri
+        $uri = (string) $this->securityUtil->escapeString($uri);
+
+        return $uri;
+    }
+
+    /**
+     * Get request method
+     *
+     * @return string The request method
+     */
+    public function getRequestMethod(): string
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+
+        // check if request method is valid
+        if (empty($method) || !is_string($method)) {
+            return 'Unknown';
+        }
+
+        // escape method
+        $method = (string) $this->securityUtil->escapeString($method);
+
+        return $method;
+    }
+
+    /**
      * Get visitor IP address
      *
      * @return string|null The current visitor IP address
@@ -209,11 +249,9 @@ class VisitorInfoUtil
         }
 
         // create stream context with timeout of 1 second
-        $context = stream_context_create(array(
-            'http' => array(
-                'timeout' => 3
-            )
-        ));
+        $context = stream_context_create(array('http' => array(
+            'timeout' => 3
+        )));
 
         try {
             // get get ip info data

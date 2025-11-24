@@ -6,13 +6,13 @@
     {# USER PROFILE IMAGE VIEW MODAL #}
     <div id="user-profile-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
         <div class="relative bg-gray-800/95 rounded max-w-md w-full border border-gray-700/50 m-2 animate-popin backdrop-blur-md">
-            <div class="px-4 py-3 border-b border-gray-700/50 bg-gray-800/30 flex items-center justify-between">
+            <div class="px-4 py-2 phn:py-1 border-b border-gray-700/50 bg-gray-800/30 flex items-center justify-between">
                 <div class="flex items-center">
                     <i class="fas fa-user-circle text-blue-400 mr-2"></i>
                     <span class="font-semibold text-white">Profile Picture</span>
                 </div>
                 <button id="close-user-profile-modal" class="text-gray-400 hover:text-red-400 transition-colors duration-200">
-                    <i class="fas fa-times text-lg"></i>
+                    <i class="fas fa-times text-xl mt-[4px]"></i>
                 </button>
             </div>
             {% if userRepository.getProfilePic() == 'default_pic' %}
@@ -206,18 +206,20 @@
                                 </thead>
                                 <tbody>
                                     {% for key, value in userIpInfo %}
-                                        <tr class="hover:bg-gray-600/40 hover:shadow-lg hover:shadow-gray-900/20 transition-all duration-300">
-                                            <td class="px-4 py-3 border-b border-gray-600/50 text-white whitespace-nowrap font-medium">
-                                                {{ key|title|replace({'_': ' '}) }}
-                                            </td>
-                                            <td class="px-4 py-3 border-b border-gray-600/50 text-white whitespace-nowrap">
-                                                {% if value is iterable %}
-                                                    <span class="text-gray-400 italic">[array]</span>
-                                                {% else %}
-                                                    {{ value }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
+                                        {% if value|length > 1 %}
+                                            <tr class="hover:bg-gray-600/40 hover:shadow-lg hover:shadow-gray-900/20 transition-all duration-300">
+                                                <td class="px-4 py-3 border-b border-gray-600/50 text-white whitespace-nowrap font-medium">
+                                                    {{ key|title|replace({'_': ' '}) }}
+                                                </td>
+                                                <td class="px-4 py-3 border-b border-gray-600/50 text-white whitespace-nowrap">
+                                                    {% if value is iterable %}
+                                                        <span class="text-gray-400 italic">[array]</span>
+                                                    {% else %}
+                                                        {{ value }}
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endif %}
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -234,19 +236,19 @@
     document.getElementById('user-profile-photo').addEventListener('click', function() {
         document.getElementById('user-profile-modal').classList.remove('hidden')
         document.getElementById('user-profile-modal').classList.add('flex')
-    })
+    });
 
     document.getElementById('close-user-profile-modal').addEventListener('click', function() {
         document.getElementById('user-profile-modal').classList.add('hidden')
         document.getElementById('user-profile-modal').classList.remove('flex')
-    })
+    });
 
     document.getElementById('user-profile-modal').addEventListener('click', function(e) {
         if (e.target === this) {
             this.classList.add('hidden')
             this.classList.remove('flex')
         }
-    })
+    });
 
     // IP address toggle function
     function toggleIpDisplay() {

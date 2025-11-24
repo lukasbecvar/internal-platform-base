@@ -14,8 +14,11 @@ Encore
     .addEntry('loading-component-js', './assets/js/loading-component.js')
     .addEntry('profile-photo-view-toggle-js', './assets/js/profile-photo-viewer.js')
     .addEntry('user-manager-js', './assets/js/component/user-manager/user-manager.js')
+    .addEntry('log-manager-raw-viewer-js', './assets/js/component/log-manager/log-manager-raw-viewer.js')
     .addEntry('notifications-settings-js', './assets/js/component/notification/notifications-settings.js')
     .addEntry('notification-subscriber-js', './assets/js/component/notification/notification-subscriber.js')
+    .addEntry('internal-config-manager-js', './assets/js/component/config-manager/internal-config-manager.js')
+    .addEntry('account-settings-table-js', './assets/js/component/account-settings/account-settings-table.js')
 
     // copy static assets
     .copyFiles({

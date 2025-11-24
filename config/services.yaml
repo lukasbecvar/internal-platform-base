@@ -25,6 +25,12 @@ services:
         tags:
             - { name: 'twig.extension' }
 
+    # app util extension
+    App\Twig\AppUtilExtension:
+        arguments:
+            $appUtil: '@App\Util\AppUtil'
+        tags: [ 'twig.extension' ]
+
     # auth manager extension
     App\Twig\AuthManagerExtension:
         arguments:
@@ -36,27 +42,32 @@ services:
     # check if assets is builded
     App\Middleware\AssetsCheckMiddleware:
         tags:
-            - { name: 'kernel.event_listener', event: 'kernel.request', priority: 9 }
+            - { name: 'kernel.event_listener', event: 'kernel.request', priority: 10 }
 
     # escape request data (for security)
     App\Middleware\EscapeRequestDataMiddleware:
         tags:
-            - { name: 'kernel.event_listener', event: 'kernel.request', priority: 8 }
+            - { name: 'kernel.event_listener', event: 'kernel.request', priority: 9 }
 
     # check if database is online
     App\Middleware\DatabaseOnlineMiddleware:
         tags:
-            - { name: 'kernel.event_listener', event: 'kernel.request', priority: 7 }
+            - { name: 'kernel.event_listener', event: 'kernel.request', priority: 8 }
 
     # check security rules
     App\Middleware\SecurityCheckMiddleware:
         tags:
-            - { name: 'kernel.event_listener', event: 'kernel.request', priority: 6 }
+            - { name: 'kernel.event_listener', event: 'kernel.request', priority: 7 }
 
     # handle maintenance mode
     App\Middleware\MaintenanceMiddleware:
         tags:
-            - { name: kernel.event_listener, event: kernel.request, priority: 5 }
+            - { name: kernel.event_listener, event: kernel.request, priority: 6 }
+
+    # disable controller if feature flag is disabled
+    App\Middleware\FeatureFlagsMiddleware:
+        tags:
+            - { name: 'kernel.event_listener', event: 'kernel.controller', priority: 5 }
 
     # auto-login middleware for remember me feature
     App\Middleware\AutoLoginMiddleware:

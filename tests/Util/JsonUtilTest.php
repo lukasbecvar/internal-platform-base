@@ -4,6 +4,7 @@ namespace Tests\Unit\Util;
 
 use App\Util\JsonUtil;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Class JsonUtilTest
@@ -12,6 +13,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @package Tests\Unit\Util
  */
+#[CoversClass(JsonUtil::class)]
 class JsonUtilTest extends TestCase
 {
     private JsonUtil $jsonUtil;
@@ -64,5 +66,39 @@ class JsonUtilTest extends TestCase
 
         // delete test file
         unlink($filePath);
+    }
+
+    /**
+     * Test check if json is valid when json is invalid
+     *
+     * @return void
+     */
+    public function testIsJsonWhenJsonIsInvalid(): void
+    {
+        // arrange test data
+        $json = '{"key": "value"';
+
+        // call tested method
+        $result = $this->jsonUtil->isJson($json);
+
+        // assert result
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test check if json is valid when json is valid
+     *
+     * @return void
+     */
+    public function testIsJsonWhenJsonIsValid(): void
+    {
+        // arrange test data
+        $json = '{"key": "value"}';
+
+        // call tested method
+        $result = $this->jsonUtil->isJson($json);
+
+        // assert result
+        $this->assertTrue($result);
     }
 }
