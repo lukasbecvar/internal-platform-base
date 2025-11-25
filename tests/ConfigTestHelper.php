@@ -158,9 +158,9 @@ class ConfigTestHelper
 
     /**
      * Ensure directory exists (create if missing)
-     * 
+     *
      * @param string $path Directory path
-     * 
+     *
      * @return void
      */
     public static function ensureDirectory(string $path): void

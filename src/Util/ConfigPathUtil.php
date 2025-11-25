@@ -6,7 +6,7 @@ namespace App\Util;
  * Class ConfigPathUtil
  *
  * Util to resolve configuration file locations
- * 
+ *
  * @package App\Util
  */
 class ConfigPathUtil
