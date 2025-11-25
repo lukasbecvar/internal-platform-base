@@ -7,6 +7,7 @@ use App\Util\AppUtil;
 use App\Manager\UserManager;
 use App\Manager\AuthManager;
 use App\Manager\ErrorManager;
+use App\Annotation\CsrfProtection;
 use App\Form\Auth\RegistrationFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,7 +43,8 @@ class RegisterController extends AbstractController
      *
      * @return Response The registration view or redirect
      */
-    #[Route('/register', methods:['GET', 'POST'], name: 'app_auth_register')]
+    #[CsrfProtection(enabled: false)]
+    #[Route('/register', methods: ['GET', 'POST'], name: 'app_auth_register')]
     public function register(Request $request): Response
     {
         // check if user is already logged in

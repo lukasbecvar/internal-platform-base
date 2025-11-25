@@ -59,7 +59,7 @@ class LogsManagerController extends AbstractController
      *
      * @return Response The logs table view
      */
-    #[Route('/manager/logs', methods:['GET'], name: 'app_manager_logs')]
+    #[Route('/manager/logs', methods: ['GET'], name: 'app_manager_logs')]
     public function logsTable(Request $request): Response
     {
         // get filter parameters from request query
@@ -120,14 +120,14 @@ class LogsManagerController extends AbstractController
      * @return Response Redirects to dashboard page after update logs status to 'READED'
      */
     #[Authorization(authorization: 'ADMIN')]
-    #[Route('/manager/logs/set/readed', methods:['GET'], name: 'app_manager_logs_set_readed')]
+    #[Route('/manager/logs/set/readed', methods: ['POST'], name: 'app_manager_logs_set_readed')]
     public function setAllLogsToReaded(Request $request): Response
     {
         // get query parameters from request
         $id = (int) $request->get('id', '0');
-        $page = (int) $request->query->get('page', '1');
-        $userId = $request->query->get('user_id', '0');
-        $filter = $request->query->get('filter', 'UNREADED');
+        $page = (int) $request->request->get('page', '1');
+        $userId = $request->request->get('user_id', '0');
+        $filter = $request->request->get('filter', 'UNREADED');
 
         // action for all logs
         if ($id == 0) {

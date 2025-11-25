@@ -25,10 +25,22 @@
                 <div class="flex-1 min-w-0">
                     <h4 class="text-yellow-300 font-semibold text-sm mb-1">Browser Logging Enabled</h4>
                     <p class="text-gray-300 text-sm mb-2">Logging for your browser is currently enabled</p>
-                    <a href={{ path('app_anti_log_enable', {'state': 'enable'}) }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/40 rounded-md text-yellow-300 hover:text-yellow-200 text-sm font-medium transition-all duration-200 shadow-sm">
-                        <span>Disable Logging</span>
-                        <i class="fas fa-arrow-right text-xs"></i>
-                    </a>
+                    
+                    {# ENABLE ANTI LOG BUTTON #}
+                    <form method="POST" action={{ path('app_anti_log_enable') }} style="display:inline">
+
+                        {# ANTI LOG STATE #}
+                        <input type="hidden" name="state" value="enable">
+
+                        {# INCLUDE REQUEST PARAMETERS #}
+                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+
+                        {# SUBMIT BUTTON #}
+                        <button type="submit" class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/40 rounded-md text-yellow-300 hover:text-yellow-200 text-sm font-medium transition-all duration-200 shadow-sm">
+                            <span>Disable Logging</span>
+                            <i class="fas fa-arrow-right text-xs"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         {% endif %}

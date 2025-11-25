@@ -7,6 +7,7 @@ use App\Util\AppUtil;
 use App\Manager\AuthManager;
 use App\Manager\UserManager;
 use App\Manager\ErrorManager;
+use App\Annotation\CsrfProtection;
 use App\Manager\NotificationsManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,7 +52,7 @@ class AccountSettingsController extends AbstractController
      *
      * @return Response Account settings table view
      */
-    #[Route('/account/settings', methods:['GET'], name: 'app_account_settings_table')]
+    #[Route('/account/settings', methods: ['GET'], name: 'app_account_settings_table')]
     public function accountSettingsTable(): Response
     {
         // get push notifications config
@@ -75,7 +76,8 @@ class AccountSettingsController extends AbstractController
      *
      * @return Response The response profile picture change form
      */
-    #[Route('/account/settings/change/picture', methods:['GET', 'POST'], name: 'app_account_settings_change_picture')]
+    #[CsrfProtection(enabled: false)]
+    #[Route('/account/settings/change/picture', methods: ['GET', 'POST'], name: 'app_account_settings_change_picture')]
     public function accountSettingsChangePicture(Request $request): Response
     {
         // create profile picture change form
@@ -147,7 +149,8 @@ class AccountSettingsController extends AbstractController
      *
      * @return Response The response with username change form
      */
-    #[Route('/account/settings/change/username', methods:['GET', 'POST'], name: 'app_account_settings_change_username')]
+    #[CsrfProtection(enabled: false)]
+    #[Route('/account/settings/change/username', methods: ['GET', 'POST'], name: 'app_account_settings_change_username')]
     public function accountSettingsChangeUsername(Request $request): Response
     {
         // create username change form
@@ -210,7 +213,8 @@ class AccountSettingsController extends AbstractController
      *
      * @return Response The response with password change form view
      */
-    #[Route('/account/settings/change/password', methods:['GET', 'POST'], name: 'app_account_settings_change_password')]
+    #[CsrfProtection(enabled: false)]
+    #[Route('/account/settings/change/password', methods: ['GET', 'POST'], name: 'app_account_settings_change_password')]
     public function accountSettingsChangePassword(Request $request): Response
     {
         // create password change form
@@ -268,7 +272,7 @@ class AccountSettingsController extends AbstractController
      *
      * @return Response Redirect back to account settings page
      */
-    #[Route('/account/settings/api/access', methods:['POST'], name: 'app_account_settings_api_access')]
+    #[Route('/account/settings/api/access', methods: ['POST'], name: 'app_account_settings_api_access')]
     public function accountSettingsApiAccess(Request $request): Response
     {
         // get requested status
@@ -311,7 +315,7 @@ class AccountSettingsController extends AbstractController
      *
      * @return Response Redirect back to account settings page
      */
-    #[Route('/account/settings/api/token/regenerate', methods:['POST'], name: 'app_account_settings_token_regenerate')]
+    #[Route('/account/settings/api/token/regenerate', methods: ['POST'], name: 'app_account_settings_token_regenerate')]
     public function accountSettingsRegenerateToken(): Response
     {
         // get logged user id

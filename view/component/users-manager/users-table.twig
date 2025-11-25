@@ -168,45 +168,88 @@
                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-600/20 text-red-400">Yes</span>
                                     </td>
                                     <td class="px-4 py-3 border-b border-gray-600/50 text-center whitespace-nowrap align-middle">
-                                        <a href={{ path('app_manager_users_ban', {'id': row.id, 'status': 'inactive', 'page': currentPage}) }} id="loading-blocker" class="unban-button w-7 h-7 bg-gray-700/50 hover:bg-green-600/50 rounded inline-flex items-center justify-center transition-colors duration-200" title="Unban user">
-                                            <i class="fas fa-check text-xs text-gray-300 hover:text-white"></i>
-                                        </a>
+                                        <form method="POST" action={{ path('app_manager_users_ban') }} style="display:inline" class="unban-form">
+
+                                            {# INCLUDE REQUEST PARAMETERS #}
+                                            <input type="hidden" name="id" value={{ row.id }}>
+                                            <input type="hidden" name="status" value="inactive">
+                                            <input type="hidden" name="page" value={{ currentPage }}>
+                                            <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+
+                                            {# SUBMIT BUTTON #}
+                                            <button type="submit" class="unban-button w-7 h-7 bg-gray-700/50 hover:bg-green-600/50 rounded inline-flex items-center justify-center transition-colors duration-200" title="Unban user">
+                                                <i class="fas fa-check text-xs text-gray-300 hover:text-white"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 {% else %}
                                     <td class="px-4 py-3 border-b border-gray-600/50 whitespace-nowrap">
                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-600/20 text-green-400">No</span>
                                     </td>
                                     <td class="px-4 py-3 border-b border-gray-600/50 text-center whitespace-nowrap align-middle">
-                                        <a href={{ path('app_manager_users_ban', {'id': row.id, 'status': 'active', 'page': currentPage}) }} id="loading-blocker" class="ban-button w-7 h-7 bg-gray-700/50 hover:bg-red-600/50 rounded inline-flex items-center justify-center transition-colors duration-200" title="Ban user">
-                                            <i class="fas fa-ban text-xs text-gray-300 hover:text-white"></i>
-                                        </a>
+                                        <form method="POST" action={{ path('app_manager_users_ban') }} class="ban-form" style="display:inline">
+
+                                            {# INCLUDE REQUEST PARAMETERS #}
+                                            <input type="hidden" name="id" value={{ row.id }}>
+                                            <input type="hidden" name="status" value="active">
+                                            <input type="hidden" name="page" value={{ currentPage }}>
+                                            <input type="hidden" name="reason" value="">
+                                            <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+
+                                            {# SUBMIT BUTTON #}
+                                            <button type="submit" class="ban-button w-7 h-7 bg-gray-700/50 hover:bg-red-600/50 rounded inline-flex items-center justify-center transition-colors duration-200" title="Ban user">
+                                                <i class="fas fa-ban text-xs text-gray-300 hover:text-white"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 {% endif %}
 
                                 {# TOKEN REGENERATION LINK #}
                                 <td class="px-4 py-3 border-b border-gray-600/50 text-center whitespace-nowrap align-middle">
-                                    <a href={{ path('app_manager_users_token_regenerate', {'id': row.id, 'page': currentPage}) }} id="loading-blocker" class="token-regenerate-button w-7 h-7 bg-gray-700/50 hover:bg-blue-600/50 rounded inline-flex items-center justify-center transition-colors duration-200" title="Regenerate authentication token">
-                                        <i class="fas fa-key text-xs text-gray-300 hover:text-white"></i>
-                                    </a>
+                                    <form method="POST" action={{ path('app_manager_users_token_regenerate') }} class="token-regenerate-form" style="display:inline">
+
+                                        {# INCLUDE REQUEST PARAMETERS #}
+                                        <input type="hidden" name="id" value={{ row.id }}>
+                                        <input type="hidden" name="page" value={{ currentPage }}>
+                                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+
+                                        {# SUBMIT BUTTON #}
+                                        <button type="submit" class="token-regenerate-button w-7 h-7 bg-gray-700/50 hover:bg-blue-600/50 rounded inline-flex items-center justify-center transition-colors duration-200" title="Regenerate authentication token">
+                                            <i class="fas fa-key text-xs text-gray-300 hover:text-white"></i>
+                                        </button>
+                                    </form>
                                 </td>
 
                                 {# API ACCESS ACTION LINK #}
                                 <td class="px-4 py-3 border-b border-gray-600/50 text-center whitespace-nowrap align-middle">
-                                    <a href={{ path('app_manager_users_api_access', {'id': row.id, 'status': row.allowApiAccess ? 'disable' : 'enable', 'page': currentPage}) }}
-                                       id="loading-blocker"
-                                       class="api-access-button w-7 h-7 bg-gray-700/50 hover:bg-purple-600/50 rounded inline-flex items-center justify-center transition-colors duration-200"
-                                       data-username={{ row.username|e }}
-                                       data-action={{ row.allowApiAccess ? 'disable' : 'enable' }}
-                                       title={{ row.allowApiAccess ? 'Disable API access' : 'Enable API access' }}>
-                                        <i class="fas fa-toggle-{{ row.allowApiAccess ? 'on' : 'off' }} text-xs {{ row.allowApiAccess ? 'text-green-300' : 'text-gray-300' }} hover:text-white"></i>
-                                    </a>
+                                    <form method="POST" action={{ path('app_manager_users_api_access') }} class="api-access-form" style="display:inline">
+
+                                        {# INCLUDE REQUEST PARAMETERS #}
+                                        <input type="hidden" name="id" value={{ row.id }}>
+                                        <input type="hidden" name="status" value={{ row.allowApiAccess ? 'disable' : 'enable' }}>
+                                        <input type="hidden" name="page" value={{ currentPage }}>
+                                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+
+                                        <button type="submit" class="api-access-button w-7 h-7 bg-gray-700/50 hover:bg-purple-600/50 rounded inline-flex items-center justify-center transition-colors duration-200" data-username={{ row.username|e }} data-action={{ row.allowApiAccess ? 'disable' : 'enable' }} title={{ row.allowApiAccess ? 'Disable API access' : 'Enable API access' }}>
+                                            <i class="fas fa-toggle-{{ row.allowApiAccess ? 'on' : 'off' }} text-xs {{ row.allowApiAccess ? 'text-green-300' : 'text-gray-300' }} hover:text-white"></i>
+                                        </button>
+                                    </form>
                                 </td>
 
                                 {# USER DELETE LINK #}
                                 <td class="px-4 py-3 border-b border-gray-600/50 text-center whitespace-nowrap align-middle">
-                                    <a href={{ path('app_manager_users_delete', {'id': row.id, 'page': currentPage}) }} id="loading-blocker" class="delete-button w-7 h-7 bg-gray-700/50 hover:bg-red-600/50 rounded inline-flex items-center justify-center transition-colors duration-200" title="Delete user">
-                                        <i class="fas fa-trash text-xs text-gray-300 hover:text-white"></i>
-                                    </a>
+                                    <form method="POST" action={{ path('app_manager_users_delete') }} class="delete-form" style="display:inline">
+
+                                        {# INCLUDE REQUEST PARAMETERS #}
+                                        <input type="hidden" name="id" value={{ row.id }}>
+                                        <input type="hidden" name="page" value={{ currentPage }}>
+                                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+
+                                        {# SUBMIT BUTTON #}
+                                        <button type="submit" class="delete-button w-7 h-7 bg-gray-700/50 hover:bg-red-600/50 rounded inline-flex items-center justify-center transition-colors duration-200" title="Delete user">
+                                            <i class="fas fa-trash text-xs text-gray-300 hover:text-white"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         {% endfor %}

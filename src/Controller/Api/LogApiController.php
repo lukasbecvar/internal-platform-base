@@ -6,6 +6,7 @@ use Exception;
 use App\Util\XmlUtil;
 use App\Manager\LogManager;
 use App\Manager\ErrorManager;
+use App\Annotation\CsrfProtection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,11 +25,8 @@ class LogApiController extends AbstractController
     private LogManager $logManager;
     private ErrorManager $errorManager;
 
-    public function __construct(
-        XmlUtil $xmlUtil,
-        LogManager $logManager,
-        ErrorManager $errorManager
-    ) {
+    public function __construct(XmlUtil $xmlUtil, LogManager $logManager, ErrorManager $errorManager)
+    {
         $this->xmlUtil = $xmlUtil;
         $this->logManager = $logManager;
         $this->errorManager = $errorManager;
@@ -57,7 +55,8 @@ class LogApiController extends AbstractController
      *
      * @return JsonResponse The JSON response with status
      */
-    #[Route('/api/external/log', methods:['POST'], name: 'app_api_external_log')]
+    #[CsrfProtection(enabled: false)]
+    #[Route('/api/external/log', methods: ['POST'], name: 'app_api_external_log')]
     public function externalLog(Request $request): JsonResponse
     {
         // get log data from request

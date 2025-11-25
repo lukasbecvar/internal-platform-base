@@ -12,6 +12,7 @@ use App\Util\VisitorInfoUtil;
 use App\Manager\ErrorManager;
 use App\Manager\DatabaseManager;
 use App\Annotation\Authorization;
+use App\Annotation\CsrfProtection;
 use App\Form\Auth\RegistrationFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -60,7 +61,7 @@ class UsersManagerController extends AbstractController
      *
      * @return Response The users manager table view
      */
-    #[Route('/manager/users', methods:['GET'], name: 'app_manager_users')]
+    #[Route('/manager/users', methods: ['GET'], name: 'app_manager_users')]
     public function usersTable(Request $request): Response
     {
         // get current page from request query params
@@ -144,7 +145,7 @@ class UsersManagerController extends AbstractController
      *
      * @return Response The user profile view
      */
-    #[Route('/manager/users/profile', methods:['GET'], name: 'app_manager_users_profile')]
+    #[Route('/manager/users/profile', methods: ['GET'], name: 'app_manager_users_profile')]
     public function userProfile(Request $request): Response
     {
         // get user id
@@ -205,8 +206,9 @@ class UsersManagerController extends AbstractController
      *
      * @return Response The user register form view
      */
+    #[CsrfProtection(enabled: false)]
     #[Authorization(authorization: 'ADMIN')]
-    #[Route('/manager/users/register', methods:['GET', 'POST'], name: 'app_manager_users_register')]
+    #[Route('/manager/users/register', methods: ['GET', 'POST'], name: 'app_manager_users_register')]
     public function userRegister(Request $request): Response
     {
         // get page limit from config
@@ -267,17 +269,17 @@ class UsersManagerController extends AbstractController
      * @return Response Redirect to users table page
      */
     #[Authorization(authorization: 'ADMIN')]
-    #[Route('/manager/users/role/update', methods:['POST'], name: 'app_manager_users_role_update')]
+    #[Route('/manager/users/role/update', methods: ['POST'], name: 'app_manager_users_role_update')]
     public function userRoleUpdate(Request $request): Response
     {
-        // get user id to delete
-        $userId = (int) $request->query->get('id');
+        // get user id to update
+        $userId = (int) $request->request->get('id');
 
         // get current page from request query params
         $page = (int) $request->query->get('page', '1');
 
         // get new user role to update
-        $newRole = (string) $request->query->get('role');
+        $newRole = (string) $request->request->get('role');
 
         // check if user id is valid
         if ($userId == null) {
@@ -334,14 +336,14 @@ class UsersManagerController extends AbstractController
      * @return Response The redirect back to users table page
      */
     #[Authorization(authorization: 'ADMIN')]
-    #[Route('/manager/users/delete', methods:['GET'], name: 'app_manager_users_delete')]
+    #[Route('/manager/users/delete', methods: ['POST'], name: 'app_manager_users_delete')]
     public function userDelete(Request $request): Response
     {
         // get user id to delete
-        $userId = (int) $request->query->get('id');
+        $userId = (int) $request->request->get('id');
 
         // get referer page
-        $refererPage = $request->query->get('page', '1');
+        $refererPage = $request->request->get('page', '1');
 
         // check if user id is valid
         if ($userId == null) {
@@ -381,14 +383,14 @@ class UsersManagerController extends AbstractController
      * @return Response The redirect back to users table page
      */
     #[Authorization(authorization: 'ADMIN')]
-    #[Route('/manager/users/ban', methods:['GET'], name: 'app_manager_users_ban')]
+    #[Route('/manager/users/ban', methods: ['POST'], name: 'app_manager_users_ban')]
     public function banUser(Request $request): Response
     {
         // get request data
-        $userId = (int) $request->query->get('id');
-        $page = (int) $request->query->get('page', '1');
-        $status = (string) $request->query->get('status');
-        $reason = (string) $request->query->get('reason');
+        $userId = (int) $request->request->get('id');
+        $page = (int) $request->request->get('page', '1');
+        $status = (string) $request->request->get('status');
+        $reason = (string) $request->request->get('reason');
 
         // validate user id & status
         if ($userId == 0 || $status == null) {
@@ -458,14 +460,14 @@ class UsersManagerController extends AbstractController
      * @return Response The redirect back to users table page
      */
     #[Authorization(authorization: 'ADMIN')]
-    #[Route('/manager/users/token/regenerate', methods:['GET'], name: 'app_manager_users_token_regenerate')]
+    #[Route('/manager/users/token/regenerate', methods: ['POST'], name: 'app_manager_users_token_regenerate')]
     public function regenerateUserToken(Request $request): Response
     {
         // get user id
-        $userId = (int) $request->query->get('id');
+        $userId = (int) $request->request->get('id');
 
-        // get current page from request query params
-        $page = (int) $request->query->get('page', '1');
+        // get current page from request params
+        $page = (int) $request->request->get('page', '1');
 
         // check if user id is valid
         if ($userId == 0) {
@@ -511,18 +513,18 @@ class UsersManagerController extends AbstractController
      * @return Response Redirect back to the users table page
      */
     #[Authorization(authorization: 'ADMIN')]
-    #[Route('/manager/users/api-access', methods:['GET'], name: 'app_manager_users_api_access')]
+    #[Route('/manager/users/api-access', methods: ['POST'], name: 'app_manager_users_api_access')]
     public function updateUserApiAccess(Request $request): Response
     {
         // get request data
-        $userId = (int) $request->query->get('id');
-        $status = (string) $request->query->get('status');
-        $page = (int) $request->query->get('page', '1');
+        $userId = (int) $request->request->get('id');
+        $status = (string) $request->request->get('status');
+        $page = (int) $request->request->get('page', '1');
 
         // validate parameters
         if ($userId == 0 || $status == null) {
             $this->errorManager->handleError(
-                message: 'invalid request user "id" or "status" parameter not found in query',
+                message: 'invalid request user "id" or "status" parameter not found in request',
                 code: Response::HTTP_BAD_REQUEST
             );
         }

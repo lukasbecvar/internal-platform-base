@@ -125,9 +125,8 @@ class ConfigManagerControllerTest extends CustomTestCase
         $this->assertSelectorTextContains('title', 'Internal platform');
         $this->assertAnySelectorTextContains('p', 'Select settings category');
         $this->assertSelectorExists('button[id="menu-toggle"]');
-        $this->assertSelectorExists('a[title="Logout user"]');
+        $this->assertSelectorExists('form[action="/logout"] button[title="Logout user"]');
         $this->assertSelectorExists('a[href="/settings"]');
-        $this->assertSelectorExists('a[href="/logout"]');
         $this->assertSelectorExists('aside[id="sidebar"]');
         $this->assertSelectorExists('img[alt="profile picture"]');
         $this->assertSelectorExists('h3[id="username"]');
@@ -177,7 +176,7 @@ class ConfigManagerControllerTest extends CustomTestCase
         $this->assertSelectorExists('button[id="menu-toggle"]');
         $this->assertSelectorTextContains('body', 'View Configuration');
         $this->assertSelectorTextContains('body', 'Config: blocked-usernames.json');
-        $this->assertSelectorExists('a[href="/settings/internal/create?filename=blocked-usernames.json"]');
+        $this->assertSelectorExists('form[action="/settings/internal/create"]');
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
@@ -188,7 +187,9 @@ class ConfigManagerControllerTest extends CustomTestCase
      */
     public function testCreateCustomInternalConfigFileWhenFilenameIsNotSet(): void
     {
-        $this->client->request('GET', '/settings/internal/create');
+        $this->client->request('POST', '/settings/internal/create', [
+            'csrf_token' => $this->getCsrfToken($this->client)
+        ]);
 
         // assert response
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
@@ -201,7 +202,8 @@ class ConfigManagerControllerTest extends CustomTestCase
      */
     public function testCreateCustomInternalConfigFile(): void
     {
-        $this->client->request('GET', '/settings/internal/create', [
+        $this->client->request('POST', '/settings/internal/create', [
+            'csrf_token' => $this->getCsrfToken($this->client),
             'filename' => 'blocked-usernames.json'
         ]);
 
@@ -216,7 +218,9 @@ class ConfigManagerControllerTest extends CustomTestCase
      */
     public function testDeleteInternalConfigFileWhenFilenameIsNotSet(): void
     {
-        $this->client->request('GET', '/settings/internal/delete');
+        $this->client->request('POST', '/settings/internal/delete', [
+            'csrf_token' => $this->getCsrfToken($this->client)
+        ]);
 
         // assert response
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
@@ -229,7 +233,8 @@ class ConfigManagerControllerTest extends CustomTestCase
      */
     public function testDeleteInternalConfigFile(): void
     {
-        $this->client->request('GET', '/settings/internal/delete', [
+        $this->client->request('POST', '/settings/internal/delete', [
+            'csrf_token' => $this->getCsrfToken($this->client),
             'filename' => 'terminal-blocked-commands.json'
         ]);
 
@@ -262,7 +267,8 @@ class ConfigManagerControllerTest extends CustomTestCase
      */
     public function testUpdateFeatureFlagValue(): void
     {
-        $this->client->request('GET', '/settings/feature-flags/update', [
+        $this->client->request('POST', '/settings/feature-flags/update', [
+            'csrf_token' => $this->getCsrfToken($this->client),
             'feature' => 'test-feature',
             'value' => 'enable'
         ]);

@@ -36,7 +36,7 @@ class NonAuthRedirectTest extends WebTestCase
             ['method' => 'GET', 'url' => '/api/notifications/public-key']
         ],
         'anti_log' => [
-            ['method' => 'GET', 'url' => '/13378/antilog']
+            ['method' => 'POST', 'url' => '/13378/antilog']
         ],
         'app_about' => [
             ['method' => 'GET', 'url' => '/about']
@@ -46,22 +46,22 @@ class NonAuthRedirectTest extends WebTestCase
         ],
         'user_manager' => [
             ['method' => 'GET', 'url' => '/manager/users'],
-            ['method' => 'GET', 'url' => '/manager/users/ban'],
-            ['method' => 'GET', 'url' => '/manager/users/delete'],
+            ['method' => 'POST', 'url' => '/manager/users/ban'],
+            ['method' => 'POST', 'url' => '/manager/users/delete'],
             ['method' => 'GET', 'url' => '/manager/users/register'],
-            ['method' => 'GET', 'url' => '/manager/users/api-access'],
+            ['method' => 'POST', 'url' => '/manager/users/api-access'],
             ['method' => 'POST', 'url' => '/manager/users/role/update'],
-            ['method' => 'GET', 'url' => '/manager/users/token/regenerate']
+            ['method' => 'POST', 'url' => '/manager/users/token/regenerate']
         ],
         'config_manager' => [
             ['method' => 'GET', 'url' => '/settings'],
             ['method' => 'GET', 'url' => '/settings/internal'],
             ['method' => 'GET', 'url' => '/settings/internal/show'],
             ['method' => 'GET', 'url' => '/settings/feature-flags'],
-            ['method' => 'GET', 'url' => '/settings/internal/create'],
-            ['method' => 'GET', 'url' => '/settings/internal/delete'],
+            ['method' => 'POST', 'url' => '/settings/internal/create'],
+            ['method' => 'POST', 'url' => '/settings/internal/delete'],
             ['method' => 'POST', 'url' => '/settings/internal/update'],
-            ['method' => 'GET', 'url' => '/settings/feature-flags/update']
+            ['method' => 'POST', 'url' => '/settings/feature-flags/update']
         ],
         'account_settings' => [
             ['method' => 'GET', 'url' => '/account/settings'],
@@ -74,7 +74,7 @@ class NonAuthRedirectTest extends WebTestCase
         ],
         'logs_manager' => [
             ['method' => 'GET', 'url' => '/manager/logs'],
-            ['method' => 'GET', 'url' => '/manager/logs/set/readed']
+            ['method' => 'POST', 'url' => '/manager/logs/set/readed']
         ]
     ];
 

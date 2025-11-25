@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use Exception;
 use App\Util\AppUtil;
 use App\Manager\ErrorManager;
+use App\Annotation\CsrfProtection;
 use App\Manager\NotificationsManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -93,6 +94,7 @@ class PushNotificationsApiController extends AbstractController
      *
      * @return JsonResponse The response with the status of the subscription
      */
+    #[CsrfProtection(enabled: false)]
     #[Route('/api/notifications/subscribe', methods: ['POST'], name: 'api_notifications_subscriber')]
     public function subscribePushNotifications(Request $request): JsonResponse
     {
@@ -162,7 +164,8 @@ class PushNotificationsApiController extends AbstractController
      *
      * @return JsonResponse The response with the status of the subscription
      */
-    #[Route('/api/notifications/check-push-subscription', name: 'api_notifications_check_push_subscription', methods: ['POST'])]
+    #[CsrfProtection(enabled: false)]
+    #[Route('/api/notifications/check-push-subscription', methods: ['POST'], name: 'api_notifications_check_push_subscription')]
     public function checkPushSubscription(Request $request): JsonResponse
     {
         // check if push notifications is enabled

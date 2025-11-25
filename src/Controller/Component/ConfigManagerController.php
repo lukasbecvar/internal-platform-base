@@ -44,7 +44,7 @@ class ConfigManagerController extends AbstractController
      *
      * @return Response The settings category selector page view
      */
-    #[Route('/settings', methods:['GET'], name: 'app_settings')]
+    #[Route('/settings', methods: ['GET'], name: 'app_settings')]
     public function settingsSelector(): Response
     {
         // render settings category selector page view
@@ -123,17 +123,17 @@ class ConfigManagerController extends AbstractController
      * @return Response Redirect to config show page
      */
     #[Authorization(authorization: 'ADMIN')]
-    #[Route('/settings/internal/create', methods: ['GET'], name: 'app_internal_config_create')]
+    #[Route('/settings/internal/create', methods: ['POST'], name: 'app_internal_config_create')]
     public function internalConfigCreate(Request $request): Response
     {
         // get referer parameter from query string
-        $referer = $request->query->get('referer');
+        $referer = $request->request->get('referer');
 
         // get config filename parameter from query string
-        $filename = $request->query->get('filename');
+        $filename = $request->request->get('filename');
 
         // check if filename parameter is set
-        if ($filename === null) {
+        if ($filename === null || !is_string($filename)) {
             $this->errorManager->handleError(
                 message: 'filename cannot be empty',
                 code: Response::HTTP_BAD_REQUEST
@@ -152,7 +152,7 @@ class ConfigManagerController extends AbstractController
         }
 
         // redirect to referer page
-        if ($referer !== null) {
+        if ($referer !== null && is_string($referer)) {
             return $this->redirectToRoute($referer);
         }
 
@@ -168,14 +168,14 @@ class ConfigManagerController extends AbstractController
      * @return Response Redirect to config index page
      */
     #[Authorization(authorization: 'ADMIN')]
-    #[Route('/settings/internal/delete', name: 'app_internal_config_delete', methods: ['GET'])]
+    #[Route('/settings/internal/delete', methods: ['POST'], name: 'app_internal_config_delete')]
     public function internalConfigDelete(Request $request): Response
     {
         // get config filename from query string
-        $filename = $request->query->get('filename');
+        $filename = $request->request->get('filename');
 
         // check if filename parameter is set
-        if ($filename === null) {
+        if ($filename === null || !is_string($filename)) {
             $this->errorManager->handleError(
                 message: 'filename cannot be empty',
                 code: Response::HTTP_BAD_REQUEST
@@ -209,13 +209,13 @@ class ConfigManagerController extends AbstractController
     public function internalConfigUpdate(Request $request): Response
     {
         // get config filename from query string
-        $filename = $request->query->get('filename');
+        $filename = $request->request->get('filename');
 
         // get new config content
         $content = $request->request->get('content', '');
 
         // check if filename parameter is set
-        if ($filename === null || $content === null) {
+        if (($filename === null || !is_string($filename)) || $content === null) {
             $this->errorManager->handleError(
                 message: 'filename or content cannot be empty',
                 code: Response::HTTP_BAD_REQUEST
@@ -272,7 +272,7 @@ class ConfigManagerController extends AbstractController
      * @return Response Redirect to feature flags list page
      */
     #[Authorization(authorization: 'ADMIN')]
-    #[Route('/settings/feature-flags/update', methods: ['GET'], name: 'app_feature_flags_update')]
+    #[Route('/settings/feature-flags/update', methods: ['POST'], name: 'app_feature_flags_update')]
     public function featureFlagsUpdate(Request $request): Response
     {
         // get feature flag name from query string
