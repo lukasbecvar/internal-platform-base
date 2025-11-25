@@ -5,7 +5,7 @@ namespace App\Tests\Repository;
 use DateTime;
 use App\Entity\Log;
 use App\Entity\User;
-use App\Tests\TestEntityFactory;
+use App\Tests\EntityTestHelper;
 use App\Repository\LogRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -32,7 +32,7 @@ class LogRepositoryTest extends KernelTestCase
         $this->entityManager = self::getContainer()->get('doctrine')->getManager();
         $this->logRepository = $this->entityManager->getRepository(Log::class);
 
-        $this->user = TestEntityFactory::createUser($this->entityManager, ['username' => 'repository-user']);
+        $this->user = EntityTestHelper::createUser($this->entityManager, ['username' => 'repository-user']);
 
         // create testing data
         $log = new Log();

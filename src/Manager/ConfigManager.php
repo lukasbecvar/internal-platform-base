@@ -3,7 +3,7 @@
 namespace App\Manager;
 
 use Exception;
-use App\Util\AppUtil;
+use App\Util\ConfigPathUtil;
 use App\Util\FileSystemUtil;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,21 +16,21 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ConfigManager
 {
-    private AppUtil $appUtil;
     private LogManager $logManager;
     private ErrorManager $errorManager;
     private FileSystemUtil $fileSystemUtil;
+    private ConfigPathUtil $configPathUtil;
 
     public function __construct(
-        AppUtil $appUtil,
         LogManager $logManager,
         ErrorManager $errorManager,
-        FileSystemUtil $fileSystemUtil
+        FileSystemUtil $fileSystemUtil,
+        ConfigPathUtil $configPathUtil
     ) {
-        $this->appUtil = $appUtil;
         $this->logManager = $logManager;
         $this->errorManager = $errorManager;
         $this->fileSystemUtil = $fileSystemUtil;
+        $this->configPathUtil = $configPathUtil;
     }
 
     /**
@@ -41,7 +41,7 @@ class ConfigManager
     public function getinternalConfigs(): array
     {
         // path to internal configuration files
-        $defaultConfigPath = $this->appUtil->getAppRootDir() . '/config/internal';
+        $defaultConfigPath = $this->configPathUtil->getDefaultConfigDirectory();
 
         // get list of files in internal configuration directory
         $files = $this->fileSystemUtil->getFilesList($defaultConfigPath);
@@ -70,9 +70,9 @@ class ConfigManager
     public function readConfig(string $filename): ?string
     {
         // build config file paths
-        $filename = $this->normalizeFilename($filename);
-        $customPath = $this->getExistingCustomConfigPath($filename);
-        $defaultPath = $this->getDefaultConfigPath($filename);
+        $filename = $this->configPathUtil->normalizeFilename($filename);
+        $customPath = $this->configPathUtil->getExistingCustomConfigPath($filename);
+        $defaultPath = $this->configPathUtil->getDefaultConfigPath($filename);
 
         // check if custom config file exists
         $path = $customPath ?? $defaultPath;
@@ -97,8 +97,8 @@ class ConfigManager
     public function writeConfig(string $filename, string $content): bool
     {
         // build path to custom config file
-        $filename = $this->normalizeFilename($filename);
-        $path = $this->getWritableCustomConfigPath($filename);
+        $filename = $this->configPathUtil->normalizeFilename($filename);
+        $path = $this->configPathUtil->getWritableCustomConfigPath($filename);
 
         // rewrite custom config file content
         $result = $this->fileSystemUtil->saveFileContent($path, $content);
@@ -124,11 +124,10 @@ class ConfigManager
      */
     public function copyConfigToRoot(string $filename): bool
     {
-        $filename = $this->normalizeFilename($filename);
-        $sourcePath = $this->getDefaultConfigPath($filename);
-        $destinationPath = $this->ensureCustomConfigDirectory()
-            ? $this->getCustomConfigPath($filename)
-            : $this->getLegacyCustomConfigPath($filename);
+        $filename = $this->configPathUtil->normalizeFilename($filename);
+        $sourcePath = $this->configPathUtil->getDefaultConfigPath($filename);
+        $destinationPath = $this->configPathUtil->ensureCustomConfigDirectory()
+            ? $this->configPathUtil->getCustomConfigPath($filename) : $this->configPathUtil->getLegacyCustomConfigPath($filename);
 
         // check if source file exists and destination file does not
         if ($this->fileSystemUtil->checkIfFileExist($sourcePath) && !$this->fileSystemUtil->checkIfFileExist($destinationPath)) {
@@ -161,9 +160,9 @@ class ConfigManager
      */
     public function isCustomConfig(string $filename): bool
     {
-        $filename = $this->normalizeFilename($filename);
-        return $this->fileSystemUtil->checkIfFileExist($this->getCustomConfigPath($filename))
-            || $this->fileSystemUtil->checkIfFileExist($this->getLegacyCustomConfigPath($filename));
+        $filename = $this->configPathUtil->normalizeFilename($filename);
+        return $this->fileSystemUtil->checkIfFileExist($this->configPathUtil->getCustomConfigPath($filename))
+            || $this->fileSystemUtil->checkIfFileExist($this->configPathUtil->getLegacyCustomConfigPath($filename));
     }
 
     /**
@@ -175,10 +174,10 @@ class ConfigManager
      */
     public function deleteConfig(string $filename): bool
     {
-        $filename = $this->normalizeFilename($filename);
         $deleted = false;
-        $customPath = $this->getCustomConfigPath($filename);
-        $legacyPath = $this->getLegacyCustomConfigPath($filename);
+        $filename = $this->configPathUtil->normalizeFilename($filename);
+        $customPath = $this->configPathUtil->getCustomConfigPath($filename);
+        $legacyPath = $this->configPathUtil->getLegacyCustomConfigPath($filename);
 
         if ($this->fileSystemUtil->checkIfFileExist($customPath)) {
             $deleted = $this->fileSystemUtil->deleteFileOrDirectory($customPath);
@@ -252,85 +251,5 @@ class ConfigManager
             message: 'Feature flag ' . $feature . ' set to ' . ($value ? 'true' : 'false'),
             level: LogManager::LEVEL_INFO
         );
-    }
-
-    /**
-     * Normalize filename to avoid unsafe paths
-     */
-    private function normalizeFilename(string $filename): string
-    {
-        $normalized = str_replace('\\', '/', $filename);
-        $normalized = str_replace('..', '', $normalized);
-
-        return ltrim($normalized, '/');
-    }
-
-    /**
-     * Get default config path (read-only)
-     */
-    private function getDefaultConfigPath(string $filename): string
-    {
-        return $this->appUtil->getAppRootDir() . '/config/internal/' . $filename;
-    }
-
-    /**
-     * Get path to new writable custom config directory
-     */
-    private function getCustomConfigPath(string $filename): string
-    {
-        return rtrim($this->appUtil->getCustomConfigDirectory(), '/') . '/' . $filename;
-    }
-
-    /**
-     * Get legacy custom config path (project root)
-     */
-    private function getLegacyCustomConfigPath(string $filename): string
-    {
-        return $this->appUtil->getAppRootDir() . '/' . $filename;
-    }
-
-    /**
-     * Ensure custom config directory exists
-     */
-    private function ensureCustomConfigDirectory(): bool
-    {
-        return $this->fileSystemUtil->ensureDirectoryExists($this->appUtil->getCustomConfigDirectory());
-    }
-
-    /**
-     * Get existing custom config path if available (new path preferred)
-     *
-     * @return string|null
-     */
-    private function getExistingCustomConfigPath(string $filename): ?string
-    {
-        $customPath = $this->getCustomConfigPath($filename);
-        if ($this->fileSystemUtil->checkIfFileExist($customPath)) {
-            return $customPath;
-        }
-
-        $legacyPath = $this->getLegacyCustomConfigPath($filename);
-        if ($this->fileSystemUtil->checkIfFileExist($legacyPath)) {
-            return $legacyPath;
-        }
-
-        return null;
-    }
-
-    /**
-     * Determine writable path for config updates (respecting legacy files)
-     */
-    private function getWritableCustomConfigPath(string $filename): string
-    {
-        $existing = $this->getExistingCustomConfigPath($filename);
-        if ($existing !== null) {
-            return $existing;
-        }
-
-        if ($this->ensureCustomConfigDirectory()) {
-            return $this->getCustomConfigPath($filename);
-        }
-
-        return $this->getLegacyCustomConfigPath($filename);
     }
 }

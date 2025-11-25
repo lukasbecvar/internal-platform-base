@@ -7,19 +7,21 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Utility factory for creating and persisting entities needed in tests
+ * Class EntityTestHelper
+ *
+ * Helpers for creating entities in integration tests
  *
  * @package App\Tests
  */
-class TestEntityFactory
+class EntityTestHelper
 {
     /**
-     * Create and persist user entity
+     * Create and persist a user entity with optional field overrides
      *
-     * @param EntityManagerInterface $entityManager The entity manager used for persistence
-     * @param array<string, mixed> $overrides Optional field overrides (e.g. ['username' => 'my-user'])
+     * @param EntityManagerInterface $entityManager Doctrine entity manager
+     * @param array<string, mixed> $overrides
      *
-     * @return User The persisted user
+     * @return User Persisted user entity
      */
     public static function createUser(EntityManagerInterface $entityManager, array $overrides = []): User
     {

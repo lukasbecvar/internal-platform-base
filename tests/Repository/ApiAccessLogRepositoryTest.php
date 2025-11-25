@@ -5,7 +5,7 @@ namespace App\Tests\Repository;
 use DateTime;
 use App\Entity\User;
 use App\Entity\ApiAccessLog;
-use App\Tests\TestEntityFactory;
+use App\Tests\EntityTestHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ApiAccessLogRepository;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -31,7 +31,7 @@ class ApiAccessLogRepositoryTest extends KernelTestCase
         // @phpstan-ignore-next-line
         $this->entityManager = self::getContainer()->get('doctrine')->getManager();
         $this->apiAccessLogRepository = $this->entityManager->getRepository(ApiAccessLog::class);
-        $this->user = TestEntityFactory::createUser($this->entityManager);
+        $this->user = EntityTestHelper::createUser($this->entityManager);
 
         // create testing data
         $log = new ApiAccessLog();

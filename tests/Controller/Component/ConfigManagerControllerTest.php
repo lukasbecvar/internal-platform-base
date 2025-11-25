@@ -3,6 +3,7 @@
 namespace App\Tests\Controller\Component;
 
 use App\Tests\CustomTestCase;
+use App\Tests\ConfigTestHelper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -45,71 +46,19 @@ class ConfigManagerControllerTest extends CustomTestCase
         $_ENV['APP_CUSTOM_CONFIG_DIR'] = $this->customConfigDir;
         putenv('APP_CUSTOM_CONFIG_DIR=' . $this->customConfigDir);
 
-        $this->createDefaultConfigFile('blocked-usernames.json', '{"blocked":["admin"]}');
-        $this->createCustomConfigFile('terminal-blocked-commands.json', '{"blocked":["rm"]}');
-        $this->createCustomConfigFile('feature-flags.json', '{"test-feature": false}');
+        ConfigTestHelper::backupAndReplaceDefaultConfig($this->projectDir, 'blocked-usernames.json', '{"blocked":["admin"]}', $this->defaultConfigBackups);
+        ConfigTestHelper::createCustomConfig($this->customConfigDir, 'terminal-blocked-commands.json', '{"blocked":["rm"]}');
+        ConfigTestHelper::createCustomConfig($this->customConfigDir, 'feature-flags.json', '{"test-feature": false}');
     }
 
     protected function tearDown(): void
     {
-        $this->removeCustomConfigDir();
-        $this->restoreDefaultConfigFiles();
+        ConfigTestHelper::removePath($this->customConfigDir);
+        ConfigTestHelper::restoreDefaultConfigs($this->defaultConfigBackups);
         unset($_ENV['APP_CUSTOM_CONFIG_DIR']);
         putenv('APP_CUSTOM_CONFIG_DIR');
 
         parent::tearDown();
-    }
-
-    private function createCustomConfigFile(string $filename, string $content): void
-    {
-        file_put_contents($this->customConfigDir . '/' . $filename, $content);
-    }
-
-    private function createDefaultConfigFile(string $filename, string $content): void
-    {
-        $path = $this->projectDir . '/config/internal/' . $filename;
-        if (!is_dir(dirname($path))) {
-            mkdir(dirname($path), 0777, true);
-        }
-
-        $originalContent = file_exists($path) ? file_get_contents($path) : null;
-        if ($originalContent === false) {
-            $originalContent = null;
-        }
-        $this->defaultConfigBackups[$path] = $originalContent;
-        file_put_contents($path, $content);
-    }
-
-    private function removeCustomConfigDir(): void
-    {
-        if (!is_dir($this->customConfigDir)) {
-            return;
-        }
-
-        $files = scandir($this->customConfigDir) ?: [];
-        foreach ($files as $file) {
-            if ($file === '.' || $file === '..') {
-                continue;
-            }
-            @unlink($this->customConfigDir . '/' . $file);
-        }
-        @rmdir($this->customConfigDir);
-    }
-
-    private function restoreDefaultConfigFiles(): void
-    {
-        foreach ($this->defaultConfigBackups as $path => $originalContent) {
-            if ($originalContent === null) {
-                if (file_exists($path)) {
-                    @unlink($path);
-                }
-                continue;
-            }
-
-            file_put_contents($path, $originalContent);
-        }
-
-        $this->defaultConfigBackups = [];
     }
 
     /**

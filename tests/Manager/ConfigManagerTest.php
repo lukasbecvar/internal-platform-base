@@ -5,9 +5,11 @@ namespace App\Tests\Manager;
 use App\Util\AppUtil;
 use App\Manager\LogManager;
 use App\Util\FileSystemUtil;
+use App\Util\ConfigPathUtil;
 use App\Manager\ErrorManager;
 use App\Manager\ConfigManager;
 use PHPUnit\Framework\TestCase;
+use App\Tests\ConfigTestHelper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +29,7 @@ class ConfigManagerTest extends TestCase
     private string $customDir;
     private ConfigManager $configManager;
     private FileSystemUtil $fileSystemUtil;
+    private ConfigPathUtil $configPathUtil;
     private AppUtil & MockObject $appUtilMock;
     private LogManager & MockObject $logManagerMock;
     private ErrorManager & MockObject $errorManagerMock;
@@ -44,6 +47,7 @@ class ConfigManagerTest extends TestCase
         $this->logManagerMock = $this->createMock(LogManager::class);
         $this->errorManagerMock = $this->createMock(ErrorManager::class);
         $this->fileSystemUtil = new FileSystemUtil($this->errorManagerMock);
+        $this->configPathUtil = new ConfigPathUtil($this->appUtilMock, $this->fileSystemUtil);
 
         // mock app util
         $this->appUtilMock->method('getAppRootDir')->willReturn($this->tempRoot);
@@ -51,16 +55,16 @@ class ConfigManagerTest extends TestCase
 
         // create config manager instance
         $this->configManager = new ConfigManager(
-            $this->appUtilMock,
             $this->logManagerMock,
             $this->errorManagerMock,
-            $this->fileSystemUtil
+            $this->fileSystemUtil,
+            $this->configPathUtil
         );
     }
 
     protected function tearDown(): void
     {
-        $this->removePath($this->tempRoot);
+        ConfigTestHelper::removePath($this->tempRoot);
     }
 
     /**
@@ -70,9 +74,9 @@ class ConfigManagerTest extends TestCase
      */
     public function testGetInternalConfigs(): void
     {
-        $this->createDefaultConfig('config1.json');
-        $this->createDefaultConfig('config2.json');
-        $this->createCustomConfig('config2.json');
+        ConfigTestHelper::createDefaultConfig($this->tempRoot, 'config1.json');
+        ConfigTestHelper::createDefaultConfig($this->tempRoot, 'config2.json');
+        ConfigTestHelper::createCustomConfig($this->customDir, 'config2.json');
 
         // call tested method
         $result = $this->configManager->getInternalConfigs();
@@ -93,7 +97,7 @@ class ConfigManagerTest extends TestCase
     {
         $filename = 'test.json';
         $content = '{"key":"value"}';
-        $this->createCustomConfig($filename, $content);
+        ConfigTestHelper::createCustomConfig($this->customDir, $filename, $content);
 
         // call tested method
         $result = $this->configManager->readConfig($filename);
@@ -111,7 +115,7 @@ class ConfigManagerTest extends TestCase
     {
         $filename = 'test.json';
         $content = '{"key":"default"}';
-        $this->createDefaultConfig($filename, $content);
+        ConfigTestHelper::createDefaultConfig($this->tempRoot, $filename, $content);
 
         // call tested method
         $result = $this->configManager->readConfig($filename);
@@ -143,7 +147,7 @@ class ConfigManagerTest extends TestCase
     {
         $filename = 'test.json';
         $content = '{"foo":"bar"}';
-        $path = $this->getCustomConfigPath($filename);
+        $path = ConfigTestHelper::getCustomConfigPath($this->customDir, $filename);
 
         // expect log to be called
         $this->logManagerMock->expects($this->once())->method('log');
@@ -166,7 +170,7 @@ class ConfigManagerTest extends TestCase
     {
         $filename = 'new.json';
         $content = '{"data":"new"}';
-        $this->createDefaultConfig($filename, $content);
+        ConfigTestHelper::createDefaultConfig($this->tempRoot, $filename, $content);
 
         // expect log to be called
         $this->logManagerMock->expects($this->once())->method('log');
@@ -176,7 +180,7 @@ class ConfigManagerTest extends TestCase
 
         // assert result
         $this->assertTrue($result);
-        $this->assertSame($content, trim((string) file_get_contents($this->getCustomConfigPath($filename))));
+        $this->assertSame($content, trim((string) file_get_contents(ConfigTestHelper::getCustomConfigPath($this->customDir, $filename))));
     }
 
     /**
@@ -201,8 +205,8 @@ class ConfigManagerTest extends TestCase
     public function testCopyConfigToRootWhenDestinationExists(): void
     {
         $filename = 'new.json';
-        $this->createDefaultConfig($filename, '{"data":"default"}');
-        $this->createCustomConfig($filename, '{"data":"custom"}');
+        ConfigTestHelper::createDefaultConfig($this->tempRoot, $filename, '{"data":"default"}');
+        ConfigTestHelper::createCustomConfig($this->customDir, $filename, '{"data":"custom"}');
 
         // call tested method
         $result = $this->configManager->copyConfigToRoot($filename);
@@ -219,7 +223,7 @@ class ConfigManagerTest extends TestCase
     public function testIsCustomConfigWhenFileExists(): void
     {
         $filename = 'custom.json';
-        $this->createCustomConfig($filename);
+        ConfigTestHelper::createCustomConfig($this->customDir, $filename);
 
         // call tested method
         $result = $this->configManager->isCustomConfig($filename);
@@ -250,7 +254,7 @@ class ConfigManagerTest extends TestCase
     public function testDeleteConfigSuccess(): void
     {
         $filename = 'custom.json';
-        $path = $this->createCustomConfig($filename, '{"value":1}');
+        $path = ConfigTestHelper::createCustomConfig($this->customDir, $filename, '{"value":1}');
 
         // expect log to be called
         $this->logManagerMock->expects($this->once())->method('log');
@@ -288,7 +292,7 @@ class ConfigManagerTest extends TestCase
     public function testUpdateFeatureFlagSuccess(): void
     {
         $filename = 'feature-flags.json';
-        $this->createCustomConfig($filename, json_encode(['metrics' => false], JSON_PRETTY_PRINT) ?: '{}');
+        ConfigTestHelper::createCustomConfig($this->customDir, $filename, json_encode(['metrics' => false], JSON_PRETTY_PRINT) ?: '{}');
 
         // expect log to be called
         $this->logManagerMock->expects($this->exactly(2))->method('log');
@@ -297,7 +301,7 @@ class ConfigManagerTest extends TestCase
         $this->configManager->updateFeatureFlag('metrics', true);
 
         // assert result
-        $content = file_get_contents($this->getCustomConfigPath($filename)) ?: '';
+        $content = file_get_contents(ConfigTestHelper::getCustomConfigPath($this->customDir, $filename)) ?: '';
         $this->assertStringContainsString('"metrics": true', $content);
     }
 
@@ -309,7 +313,7 @@ class ConfigManagerTest extends TestCase
     public function testUpdateFeatureFlagWhenFeatureDoesNotExist(): void
     {
         $filename = 'feature-flags.json';
-        $this->createCustomConfig($filename, json_encode(['other-feature' => true], JSON_PRETTY_PRINT) ?: '{}');
+        ConfigTestHelper::createCustomConfig($this->customDir, $filename, json_encode(['other-feature' => true], JSON_PRETTY_PRINT) ?: '{}');
 
         // expect error handler to be called
         $this->errorManagerMock->expects($this->once())->method('handleError')->with(
@@ -320,53 +324,5 @@ class ConfigManagerTest extends TestCase
 
         // call tested method
         $this->configManager->updateFeatureFlag('metrics', true);
-    }
-
-    private function createDefaultConfig(string $filename, string $content = '{}'): string
-    {
-        $path = $this->getDefaultConfigPath($filename);
-        file_put_contents($path, $content);
-        return $path;
-    }
-
-    private function createCustomConfig(string $filename, string $content = '{}'): string
-    {
-        $path = $this->getCustomConfigPath($filename);
-        file_put_contents($path, $content);
-        return $path;
-    }
-
-    private function getDefaultConfigPath(string $filename): string
-    {
-        return $this->tempRoot . '/config/internal/' . $filename;
-    }
-
-    private function getCustomConfigPath(string $filename): string
-    {
-        return $this->customDir . '/' . $filename;
-    }
-
-    private function removePath(string $path): void
-    {
-        if (!file_exists($path)) {
-            return;
-        }
-
-        if (is_file($path) || is_link($path)) {
-            @chmod($path, 0777);
-            @unlink($path);
-            return;
-        }
-
-        $items = scandir($path) ?: [];
-        foreach ($items as $item) {
-            if ($item === '.' || $item === '..') {
-                continue;
-            }
-            $this->removePath($path . DIRECTORY_SEPARATOR . $item);
-        }
-
-        @chmod($path, 0777);
-        @rmdir($path);
     }
 }

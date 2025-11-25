@@ -410,7 +410,7 @@ class FileSystemUtil
      *
      * @return void
      */
-    private function deleteDirectoryRecursive(string $path): void
+    public function deleteDirectoryRecursive(string $path): void
     {
         if (!is_dir($path)) {
             return;
@@ -441,7 +441,7 @@ class FileSystemUtil
      *
      * @return bool True if file should be handled as shell script
      */
-    private function isShellScript(string $path, string $content): bool
+    public function isShellScript(string $path, string $content): bool
     {
         if (str_ends_with($path, '.sh') || str_ends_with($path, '.bash')) {
             return true;

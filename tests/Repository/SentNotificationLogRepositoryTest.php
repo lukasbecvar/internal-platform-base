@@ -4,7 +4,7 @@ namespace App\Tests\Repository;
 
 use DateTime;
 use App\Entity\User;
-use App\Tests\TestEntityFactory;
+use App\Tests\EntityTestHelper;
 use App\Entity\SentNotificationLog;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -31,7 +31,7 @@ class SentNotificationLogRepositoryTest extends KernelTestCase
         // @phpstan-ignore-next-line
         $this->entityManager = self::getContainer()->get('doctrine')->getManager();
         $this->sentNotificationLogRepository = $this->entityManager->getRepository(SentNotificationLog::class);
-        $this->receiver = TestEntityFactory::createUser($this->entityManager);
+        $this->receiver = EntityTestHelper::createUser($this->entityManager);
 
         // create testing data
         $log = new SentNotificationLog();

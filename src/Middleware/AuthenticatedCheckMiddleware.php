@@ -38,7 +38,7 @@ class AuthenticatedCheckMiddleware
         $pathInfo = $request->getPathInfo();
 
         // check if route is excluded from authentication check
-        if (!$this->isExcludedPath($pathInfo)) {
+        if (!$this->isAuthenticationExcluded($pathInfo)) {
             $request = $event->getRequest();
 
             // allow API access via API-KEY header only for /api routes
@@ -57,13 +57,13 @@ class AuthenticatedCheckMiddleware
     }
 
     /**
-     * Check if path is excluded from authentication check
+     * Determine if the current path should bypass authentication checks
      *
-     * @param string $pathInfo
+     * @param string $pathInfo Request path info
      *
-     * @return bool
+     * @return bool True when authentication can be skipped
      */
-    private function isExcludedPath(string $pathInfo): bool
+    private function isAuthenticationExcluded(string $pathInfo): bool
     {
         return $pathInfo === '/register'
             || $pathInfo === '/login'

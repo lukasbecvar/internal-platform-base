@@ -4,7 +4,7 @@ namespace App\Tests\Repository;
 
 use DateTime;
 use App\Entity\User;
-use App\Tests\TestEntityFactory;
+use App\Tests\EntityTestHelper;
 use App\Entity\NotificationSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -34,8 +34,8 @@ class NotificationSubscriberRepositoryTest extends KernelTestCase
         $this->notificationSubscriberRepository = $this->entityManager->getRepository(NotificationSubscriber::class);
 
         // mock test users
-        $this->userOne = TestEntityFactory::createUser($this->entityManager, ['username' => 'subscriber-user-1']);
-        $this->userTwo = TestEntityFactory::createUser($this->entityManager, ['username' => 'subscriber-user-2']);
+        $this->userOne = EntityTestHelper::createUser($this->entityManager, ['username' => 'subscriber-user-1']);
+        $this->userTwo = EntityTestHelper::createUser($this->entityManager, ['username' => 'subscriber-user-2']);
 
         // create testing data
         $subscriber = new NotificationSubscriber();

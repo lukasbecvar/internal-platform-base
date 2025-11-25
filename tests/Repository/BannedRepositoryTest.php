@@ -5,7 +5,7 @@ namespace App\Tests\Repository;
 use DateTime;
 use App\Entity\User;
 use App\Entity\Banned;
-use App\Tests\TestEntityFactory;
+use App\Tests\EntityTestHelper;
 use App\Repository\BannedRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -35,9 +35,9 @@ class BannedRepositoryTest extends KernelTestCase
         $this->bannedRepository = $this->entityManager->getRepository(Banned::class);
 
         // create test users
-        $this->issuer = TestEntityFactory::createUser($this->entityManager, ['username' => 'issuer']);
-        $this->bannedUser = TestEntityFactory::createUser($this->entityManager, ['username' => 'banned-user-1']);
-        $this->secondBannedUser = TestEntityFactory::createUser($this->entityManager, ['username' => 'banned-user-2']);
+        $this->issuer = EntityTestHelper::createUser($this->entityManager, ['username' => 'issuer']);
+        $this->bannedUser = EntityTestHelper::createUser($this->entityManager, ['username' => 'banned-user-1']);
+        $this->secondBannedUser = EntityTestHelper::createUser($this->entityManager, ['username' => 'banned-user-2']);
 
         // create test banned entities
         $primaryBan = new Banned();
