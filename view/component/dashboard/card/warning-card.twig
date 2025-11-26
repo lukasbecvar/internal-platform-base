@@ -1,4 +1,4 @@
-<div class="backdrop-blur-md bg-gray-800/50 border border-gray-700/50 rounded shadow-xl text-white w-full overflow-hidden w-full sm:col-span-2 transition-all duration-500 ease-in-out transform" id="warning-box">
+<div id="warning-box" class="backdrop-blur-md bg-gray-800/50 border border-gray-700/50 rounded shadow-xl text-white w-full overflow-hidden w-full sm:col-span-2 transition-all duration-500 ease-in-out transform">
     <div class="px-2 py-2 border-b border-gray-700/50 font-semibold tracking-wide text-sm uppercase text-gray-200 flex items-center justify-between">
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-amber-500/20 rounded flex items-center justify-center">
@@ -26,7 +26,7 @@
                     <h4 class="text-yellow-300 font-semibold text-sm mb-1">Browser Logging Enabled</h4>
                     <p class="text-gray-300 text-sm mb-2">Logging for your browser is currently enabled</p>
                     
-                    {# ENABLE ANTI LOG BUTTON #}
+                    {# ENABLE ANTI-LOG BUTTON #}
                     <form method="POST" action={{ path('app_anti_log_enable') }} style="display:inline">
 
                         {# ANTI LOG STATE #}
@@ -36,7 +36,11 @@
                         <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
 
                         {# SUBMIT BUTTON #}
-                        <button type="submit" class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/40 rounded-md text-yellow-300 hover:text-yellow-200 text-sm font-medium transition-all duration-200 shadow-sm">
+                        <button
+                            type="submit"
+                            class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 transition-all duration-200 shadow-sm
+                                border border-yellow-500/40 rounded-md text-yellow-300 hover:text-yellow-200 text-sm font-medium"
+                            >
                             <span>Disable Logging</span>
                             <i class="fas fa-arrow-right text-xs"></i>
                         </button>
@@ -56,7 +60,11 @@
                 <div class="flex-1 min-w-0">
                     <h4 class="text-blue-300 font-semibold text-sm mb-1">New Logs Available</h4>
                     <p class="text-gray-300 text-sm mb-2">{{ unreadedLogsCount }} unread log entries found</p>
-                    <a href={{ path('app_manager_logs') }} class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 rounded-md text-blue-300 hover:text-blue-200 text-sm font-medium transition-all duration-200 shadow-sm">
+                    <a 
+                        href={{ path('app_manager_logs') }}
+                        class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 rounded-md
+                            text-blue-300 hover:text-blue-200 text-sm font-medium transition-all duration-200 shadow-sm"
+                        >
                         <span>View Logs</span>
                         <i class="fas fa-arrow-right text-xs"></i>
                     </a>
@@ -66,4 +74,5 @@
     </div>
 </div>
 
+{# INCLUDE JS FOR WARNING CARD #}
 {{ encore_entry_script_tags('warning-card-js') }}

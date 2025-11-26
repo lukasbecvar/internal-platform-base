@@ -15,9 +15,9 @@
                 <button id="close-profile-modal" class="absolute top-2 right-3 text-gray-300 text-2xl leading-none hover:text-red-400 transition-colors duration-200">&times;</button>
             </div>
             {% if getUserData().getProfilePic == 'default_pic' %}
-                <img class="w-full h-auto rounded-b-lg" src={{ asset('/assets/images/default-profile.jpg') }} alt="profile picture">
+                <img src={{ asset('/assets/images/default-profile.jpg') }} alt="profile picture" class="w-full h-auto rounded-b-lg">
             {% else %}
-                <img class="w-full h-auto rounded-b-lg" src="data:image/jpeg;base64,{{ getUserData().getProfilePic|e }}" alt="profile picture">
+                <img src="data:image/jpeg;base64,{{ getUserData().getProfilePic|e }}" alt="profile picture" class="w-full h-auto rounded-b-lg">
             {% endif %}
         </div>
     </div>

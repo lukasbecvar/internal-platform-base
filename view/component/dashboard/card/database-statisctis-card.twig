@@ -13,7 +13,12 @@
                     <i class="fas fa-scroll text-orange-400 text-sm"></i>
                     <span class="text-white font-medium text-sm">Logs</span>
                 </div>
-                <a href={{ path('app_manager_logs') }} class="inline-flex items-center gap-1 px-2 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 text-xs font-semibold rounded transition-all duration-200 border border-blue-500/30" title="Go to logs">
+                <a 
+                    href={{ path('app_manager_logs') }}
+                    title="Go to logs"
+                    class="inline-flex items-center gap-1 px-2 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300
+                        text-xs font-semibold rounded transition-all duration-200 border border-blue-500/30"
+                    >
                     <span>View All</span>
                     <i class="fas fa-external-link-alt text-xs"></i>
                 </a>
@@ -33,15 +38,20 @@
                     <i class="fas fa-users text-purple-400 text-sm"></i>
                     <span class="text-white font-medium text-sm">Users</span>
                 </div>
-                <a href={{ path('app_manager_users') }} class="inline-flex items-center gap-1 px-2 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 text-xs font-semibold rounded transition-all duration-200 border border-blue-500/30" title="Go to users manager">
+                <a
+                    href={{ path('app_manager_users') }}
+                    title="Go to users manager"
+                    class="inline-flex items-center gap-1 px-2 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300
+                        text-xs font-semibold rounded transition-all duration-200 border border-blue-500/30"
+                    >
                     <span>View All</span>
                     <i class="fas fa-external-link-alt text-xs"></i>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs text-gray-400">
                 <div>Total Users: <span class="text-white font-semibold">{{ usersCount|e }}</span></div>
-                <div>Online: <span class="text-green-400 font-semibold">{{ onlineUsersCount|e }}</span> <a href="{{ path('app_manager_users', {'filter': 'online'}) }}" class="text-blue-400 hover:text-blue-300">(list)</a></div>
-                <div class="col-span-2">Banned: <span class="text-red-400 font-semibold">{{ bannedUsersCount|e }}</span> <a href="{{ path('app_manager_users', {'filter': 'banned'}) }}" class="text-blue-400 hover:text-blue-300">(list)</a></div>
+                <div>Online: <span class="text-green-400 font-semibold">{{ onlineUsersCount|e }}</span> <a href={{ path('app_manager_users', {'filter': 'online'}) }} class="text-blue-400 hover:text-blue-300">(list)</a></div>
+                <div class="col-span-2">Banned: <span class="text-red-400 font-semibold">{{ bannedUsersCount|e }}</span> <a href={{ path('app_manager_users', {'filter': 'banned'}) }} class="text-blue-400 hover:text-blue-300">(list)</a></div>
             </div>
         </div>
     </div>
