@@ -4,12 +4,6 @@ FROM php:8.4-apache
 # set container working directory
 WORKDIR /var/www
 
-# fix permissions for www-data user
-ARG WWWGROUP=1000
-ARG WWWUSER=1000
-RUN groupmod -o -g ${WWWGROUP} www-data \
-    && usermod -o -u ${WWWUSER} www-data
-
 # install required packages
 RUN apt-get update && apt-get install -y \
     libicu-dev \
@@ -20,3 +14,19 @@ RUN docker-php-ext-install pdo_mysql pdo intl
 
 # install OPCache extension
 RUN docker-php-ext-install opcache
+
+# fix permissions for writing to /var/www (configuration files)
+ARG WWWGROUP=1000
+ARG WWWUSER=1000
+RUN groupmod -o -g ${WWWGROUP} www-data \
+    && usermod -o -u ${WWWUSER} www-data
+ENV WWWGROUP=${WWWGROUP}
+ENV WWWUSER=${WWWUSER}
+
+# copy entrypoint script
+COPY ./.docker/docker-entrypoint.sh /usr/local/bin/custom-entrypoint.sh
+RUN chmod +x /usr/local/bin/custom-entrypoint.sh
+
+# run entrypoint script
+ENTRYPOINT ["custom-entrypoint.sh"]
+CMD ["apache2-foreground"]
