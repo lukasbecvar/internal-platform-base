@@ -36,12 +36,7 @@ class LogReaderCommandTest extends TestCase
         $this->visitorInfoUtil = $this->createMock(VisitorInfoUtil::class);
 
         // create command instance
-        $this->command = new LogReaderCommand(
-            $this->logManager,
-            $this->visitorInfoUtil
-        );
-
-        // create command tester instance
+        $this->command = new LogReaderCommand($this->logManager, $this->visitorInfoUtil);
         $this->commandTester = new CommandTester($this->command);
     }
 

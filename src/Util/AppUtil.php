@@ -159,7 +159,7 @@ class AppUtil
             $this->getCustomConfigDirectory() . '/' . $configFile,
             $rootDir . '/' . $configFile,
             $rootDir . '/config/internal/' . $configFile,
-            $rootDir . '/config/' . $configFile,
+            $rootDir . '/config/' . $configFile
         ];
 
         foreach (array_unique($candidatePaths) as $configPath) {

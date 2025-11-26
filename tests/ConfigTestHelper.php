@@ -83,12 +83,7 @@ class ConfigTestHelper
      *
      * @return void
      */
-    public static function backupAndReplaceDefaultConfig(
-        string $projectDir,
-        string $filename,
-        string $content,
-        array &$backups
-    ): void {
+    public static function backupAndReplaceDefaultConfig(string $projectDir, string $filename, string $content, array &$backups): void {
         $path = self::getDefaultConfigPath($projectDir, $filename);
         self::ensureDirectory(dirname($path));
 

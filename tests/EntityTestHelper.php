@@ -37,6 +37,7 @@ class EntityTestHelper
         $user->setAllowApiAccess($overrides['allow_api_access'] ?? true);
         $user->setProfilePic($overrides['profile_pic'] ?? 'pic');
 
+        // persist and flush test user to database
         $entityManager->persist($user);
         $entityManager->flush();
 

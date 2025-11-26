@@ -17,7 +17,7 @@ function validateAndPreviewImage(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0]
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
-        const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+        const maxSize = 5 * 1024 * 1024 // 5MB limit
 
         // check file type
         if (!allowedTypes.includes(file.type)) {

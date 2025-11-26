@@ -20,10 +20,8 @@ class CacheUtil
     private ErrorManager $errorManager;
     private CacheItemPoolInterface $cacheItemPoolInterface;
 
-    public function __construct(
-        ErrorManager $errorManager,
-        CacheItemPoolInterface $cacheItemPoolInterface
-    ) {
+    public function __construct(ErrorManager $errorManager, CacheItemPoolInterface $cacheItemPoolInterface)
+    {
         $this->errorManager = $errorManager;
         $this->cacheItemPoolInterface = $cacheItemPoolInterface;
     }

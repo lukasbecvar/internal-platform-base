@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class BanManager
 {
+    private AppUtil $appUtil;
     private LogManager $logManager;
     private UserManager $userManager;
     private AuthManager $authManager;
@@ -26,7 +27,6 @@ class BanManager
     private BannedRepository $bannedRepository;
     private EntityManagerInterface $entityManager;
     private NotificationsManager $notificationsManager;
-    private AppUtil $appUtil;
 
     public function __construct(
         AppUtil $appUtil,

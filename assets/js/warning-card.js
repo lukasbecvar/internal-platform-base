@@ -28,8 +28,8 @@ function closeWarningBox(warningBox) {
     // smooth fade out with gentle slide up
     setTimeout(() => {
         warningBox.style.transform = 'translateY(-20px) scale(0.95)'
-        warningBox.style.opacity = '0'
         warningBox.style.filter = 'blur(1px)'
+        warningBox.style.opacity = '0'
     }, 30)
 
     // remove element after animation completes
@@ -44,15 +44,15 @@ function closeWarningBox(warningBox) {
 function animateWarningBoxEntrance(warningBox) {
     // start with hidden state
     warningBox.style.opacity = '0'
-    warningBox.style.transform = 'translateY(-20px) scale(0.95)'
     warningBox.style.filter = 'blur(2px)'
+    warningBox.style.transform = 'translateY(-20px) scale(0.95)'
 
     // animate to visible state
     setTimeout(() => {
-        warningBox.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
         warningBox.style.opacity = '1'
-        warningBox.style.transform = 'translateY(0) scale(1)'
         warningBox.style.filter = 'blur(0px)'
+        warningBox.style.transform = 'translateY(0) scale(1)'
+        warningBox.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
     }, 100)
 }
 
