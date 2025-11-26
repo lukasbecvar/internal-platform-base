@@ -44,13 +44,13 @@ class BannedRepositoryTest extends KernelTestCase
         $primaryBan->setBannedUser($this->bannedUser);
         $primaryBan->setReason('Violation of rules');
         $primaryBan->setStatus('active');
-        $primaryBan->setTime(new DateTime());
+        $primaryBan->setTime(new DateTime('-10 minutes'));
         $primaryBan->setBannedBy($this->issuer);
         $secondaryBan = new Banned();
         $secondaryBan->setBannedUser($this->secondBannedUser);
         $secondaryBan->setReason('Abuse');
         $secondaryBan->setStatus('active');
-        $secondaryBan->setTime(new DateTime());
+        $secondaryBan->setTime(new DateTime('-5 minutes'));
         $secondaryBan->setBannedBy($this->issuer);
 
         // persist test entities
@@ -123,5 +123,21 @@ class BannedRepositoryTest extends KernelTestCase
 
         // assert result
         $this->assertSame('inactive', $updated->getStatus());
+    }
+
+    /**
+     * Test find active bans list
+     *
+     * @return void
+     */
+    public function testFindActiveBans(): void
+    {
+        $firstPage = $this->bannedRepository->findActiveBans(1, 0);
+        $secondPage = $this->bannedRepository->findActiveBans(1, 1);
+
+        $this->assertCount(1, $firstPage);
+        $this->assertCount(1, $secondPage);
+        $this->assertSame($this->secondBannedUser->getId(), $firstPage[0]->getId());
+        $this->assertSame($this->bannedUser->getId(), $secondPage[0]->getId());
     }
 }
