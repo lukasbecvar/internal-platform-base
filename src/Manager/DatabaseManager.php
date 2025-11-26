@@ -69,8 +69,9 @@ class DatabaseManager
      */
     public function tableTruncate(string $dbName, string $tableName): void
     {
-        // truncate table query
-        $sql = 'TRUNCATE TABLE ' . $dbName . '.' . $tableName;
+        $databaseIdentifier = $this->quoteIdentifier($dbName, 'database');
+        $tableIdentifier = $this->quoteIdentifier($tableName, 'table');
+        $sql = sprintf('TRUNCATE TABLE %s.%s', $databaseIdentifier, $tableIdentifier);
 
         try {
             // execute truncate table query
@@ -108,5 +109,26 @@ class DatabaseManager
 
         $metadata = $this->entityManager->getClassMetadata($entityClass);
         return $metadata->getTableName();
+    }
+
+    /**
+     * Validate and quote database identifiers to avoid SQL injection
+     *
+     * @param string $name Identifier value
+     * @param string $type Identifier type for error context
+     *
+     * @return string Quoted identifier
+     */
+    public function quoteIdentifier(string $name, string $type): string
+    {
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $name)) {
+            $this->errorManager->handleError(
+                message: sprintf('invalid %s name: %s', $type, $name),
+                code: Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $platform = $this->connection->getDatabasePlatform();
+        return $platform->quoteSingleIdentifier($name);
     }
 }
