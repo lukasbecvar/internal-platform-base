@@ -133,7 +133,7 @@ class CsrfProtectionMiddlewareTest extends TestCase
         // expect token validation to fail
         $this->expectException(HttpException::class);
         $this->tokenManager->expects($this->once())->method('isTokenValid')->with($this->callback(function (CsrfToken $token) {
-            return $token->getId() === 'internal_config_create' && $token->getValue() === 'invalid';
+            return $token->getId() === 'internal-csrf-token' && $token->getValue() === 'invalid';
         }))->willReturn(false);
 
         // expect error manager to handle error
@@ -162,7 +162,7 @@ class CsrfProtectionMiddlewareTest extends TestCase
 
         // expect token validation to pass
         $this->tokenManager->expects($this->once())->method('isTokenValid')->with($this->callback(function (CsrfToken $token) {
-            return $token->getId() === 'internal_config_create' && $token->getValue() === 'valid-token';
+            return $token->getId() === 'internal-csrf-token' && $token->getValue() === 'valid-token';
         }))->willReturn(true);
 
         // expect error manager not to handle error

@@ -30,7 +30,7 @@
                         <form method="POST" action={{ path('app_internal_config_create') }} style="display:inline">
                             <input type="hidden" name="referer" value="app_feature_flags">
                             <input type="hidden" name="filename" value="feature-flags.json">
-                            <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                            <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
                             <button type="submit" class="text-blue-400 hover:underline bg-transparent border-0 p-0 cursor-pointer">
                                 Create custom config file
                             </button>
@@ -61,7 +61,7 @@
                                     <input type="hidden" name="value" value={{ flag ? 'disable' : 'enable' }}>
 
                                     {# CSRF SECURITY TOKEN #}
-                                    <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                                    <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
                                     {# SUBMIT BUTTON #}
                                     <button type="submit" class="px-4 py-2 text-xs font-medium rounded {{ flag ? 'bg-red-600/80 hover:bg-red-500/90 border border-red-500/50' : 'bg-green-600/80 hover:bg-green-500/90 border border-green-500/50' }} text-white transition-all duration-200 shadow-sm mr-[-5px]">

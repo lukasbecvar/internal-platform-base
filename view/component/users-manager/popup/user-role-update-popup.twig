@@ -14,7 +14,7 @@
 		<form id="role-update-form" method="POST" action={{ path('app_manager_users_role_update', {'page': currentPage} ) }}>
 			<input type="hidden" name="id" id="role-update-user-id">
 			<input type="hidden" name="current-role" id="current-role">
-			<input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+			<input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
 			{# ROLE FIELD #}
 			<div class="mb-6">

@@ -83,7 +83,7 @@ class CsrfProtectionMiddleware
         }
 
         // check if csrf token is valid
-        $csrfToken = new CsrfToken('internal_config_create', $tokenValue);
+        $csrfToken = new CsrfToken('internal-csrf-token', $tokenValue);
         if (!$this->csrfTokenManager->isTokenValid($csrfToken)) {
             $this->errorManager->handleError('invalid csrf token', Response::HTTP_FORBIDDEN);
         }

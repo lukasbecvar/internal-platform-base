@@ -33,7 +33,7 @@
                         <input type="hidden" name="state" value="enable">
 
                         {# INCLUDE REQUEST PARAMETERS #}
-                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
                         {# SUBMIT BUTTON #}
                         <button

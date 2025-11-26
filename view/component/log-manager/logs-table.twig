@@ -20,7 +20,7 @@
                 {# ANTI-LOG TOGGLE FORM #}
                 <form method="POST" action={{ path('app_anti_log_enable') }} style="display:inline">
                     {# INCLUDE CSRF SECURITY TOKEN #}
-                    <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                    <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
                     {# ANTI LOG STATE #}
                     {% if antiLogEnabled %}
@@ -45,7 +45,7 @@
                     <input type="hidden" name="filter" value="UNREADED">
 
                     {# INCLUDE CSRF SECURITY TOKEN #}
-                    <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                    <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
                     {# READ ALL SUBMIT BUTTON #}
                     <button type="submit" title="Mark all as read" class="w-8 h-8 bg-green-500/20 hover:bg-green-500/30 rounded flex items-center justify-center transition-all duration-200 border border-green-500/30">
@@ -175,7 +175,7 @@
                                             <input type="hidden" name="page" value={{ currentPage }}>
 
                                             {# INCLUDE CSRF SECURITY TOKEN #}
-                                            <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                                            <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
                                             {# READ SUBMIT BUTTON #}
                                             <button type="submit" title="Mark as read" class="px-2 py-1 bg-green-500/20 hover:bg-green-500/30 rounded text-green-400 text-xs transition-all duration-200 border border-green-500/30">

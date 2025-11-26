@@ -102,7 +102,7 @@ class CustomTestCase extends WebTestCase
      *
      * @return string The token value
      */
-    protected function getCsrfToken(KernelBrowser $client, string $tokenId = 'internal_config_create'): string
+    protected function getCsrfToken(KernelBrowser $client, string $tokenId = 'internal-csrf-token'): string
     {
         /** @var SessionFactoryInterface $sessionFactory */
         $sessionFactory = $client->getContainer()->get('session.factory');

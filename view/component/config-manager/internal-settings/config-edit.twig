@@ -23,7 +23,7 @@
         <form action={{ path('app_internal_config_update', {'filename': filename}) }} method="POST" class="h-full flex flex-col">
 
             {# INCLUDE CSRF SECURITY TOKEN #}
-            <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+            <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
             {# FILENAME REQUIRED FOR CONTROLLER #}
             <input type="hidden" name="filename" value={{ filename }}>
@@ -65,7 +65,7 @@
 
 {# HIDDEN RESET FORM (handeled with button inside popup) #}
 <form id="reset-form" method="POST" action={{ path('app_internal_config_delete') }} class="hidden">
-    <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+    <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
     <input type="hidden" name="filename" id="reset-filename">
 </form>
 

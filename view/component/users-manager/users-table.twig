@@ -174,7 +174,7 @@
                                             <input type="hidden" name="id" value={{ row.id }}>
                                             <input type="hidden" name="status" value="inactive">
                                             <input type="hidden" name="page" value={{ currentPage }}>
-                                            <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                                            <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
                                             {# SUBMIT BUTTON #}
                                             <button type="submit" title="Unban user" class="unban-button w-7 h-7 bg-gray-700/50 hover:bg-green-600/50 rounded inline-flex items-center justify-center transition-colors duration-200">
@@ -194,7 +194,7 @@
                                             <input type="hidden" name="status" value="active">
                                             <input type="hidden" name="page" value={{ currentPage }}>
                                             <input type="hidden" name="reason" value="">
-                                            <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                                            <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
                                             {# SUBMIT BUTTON #}
                                             <button type="submit" title="Ban user" class="ban-button w-7 h-7 bg-gray-700/50 hover:bg-red-600/50 rounded inline-flex items-center justify-center transition-colors duration-200">
@@ -211,7 +211,7 @@
                                         {# INCLUDE REQUEST PARAMETERS #}
                                         <input type="hidden" name="id" value={{ row.id }}>
                                         <input type="hidden" name="page" value={{ currentPage }}>
-                                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
                                         {# SUBMIT BUTTON #}
                                         <button type="submit" title="Regenerate authentication token" class="token-regenerate-button w-7 h-7 bg-gray-700/50 hover:bg-blue-600/50 rounded inline-flex items-center justify-center transition-colors duration-200">
@@ -228,7 +228,7 @@
                                         <input type="hidden" name="id" value={{ row.id }}>
                                         <input type="hidden" name="status" value={{ row.allowApiAccess ? 'disable' : 'enable' }}>
                                         <input type="hidden" name="page" value={{ currentPage }}>
-                                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
                                         <button type="submit" title={{ row.allowApiAccess ? 'Disable API access' : 'Enable API access' }} class="api-access-button w-7 h-7 bg-gray-700/50 hover:bg-purple-600/50 rounded inline-flex items-center justify-center transition-colors duration-200" data-username={{ row.username|e }} data-action={{ row.allowApiAccess ? 'disable' : 'enable' }}>
                                             <i class="fas fa-toggle-{{ row.allowApiAccess ? 'on' : 'off' }} text-xs {{ row.allowApiAccess ? 'text-green-300' : 'text-gray-300' }} hover:text-white"></i>
@@ -243,7 +243,7 @@
                                         {# INCLUDE REQUEST PARAMETERS #}
                                         <input type="hidden" name="id" value={{ row.id }}>
                                         <input type="hidden" name="page" value={{ currentPage }}>
-                                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal_config_create') }}>
+                                        <input type="hidden" name="csrf_token" value={{ csrf_token('internal-csrf-token') }}>
 
                                         {# SUBMIT BUTTON #}
                                         <button type="submit" title="Delete user" class="delete-button w-7 h-7 bg-gray-700/50 hover:bg-red-600/50 rounded inline-flex items-center justify-center transition-colors duration-200">
