@@ -887,31 +887,6 @@ class AuthManagerTest extends TestCase
     }
 
     /**
-     * Test get logged username
-     *
-     * @return void
-     */
-    public function testGetLoggedUsername(): void
-    {
-        // mock session check
-        $this->sessionUtilMock->method('checkSession')->willReturn(true);
-
-        // mock session value get
-        $this->sessionUtilMock->method('getSessionValue')->willReturn('validToken');
-
-        // mock user repository
-        $user = $this->createMock(User::class);
-        $user->method('getUsername')->willReturn('testuser');
-        $this->userManagerMock->method('getUserByToken')->willReturn($user);
-
-        // call test method
-        $result = $this->authManager->getLoggedUsername();
-
-        // assert result
-        $this->assertEquals('testuser', $result);
-    }
-
-    /**
      * Test user logout process
      *
      * @return void

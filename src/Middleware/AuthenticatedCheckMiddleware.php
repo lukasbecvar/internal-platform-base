@@ -65,9 +65,9 @@ class AuthenticatedCheckMiddleware
      */
     private function isAuthenticationExcluded(string $pathInfo): bool
     {
-        return $pathInfo === '/register'
+        return $pathInfo === '/'
             || $pathInfo === '/login'
-            || $pathInfo === '/'
+            || $pathInfo === '/register'
             || str_starts_with($pathInfo, '/error')
             || preg_match('#^/(_profiler|_wdt)#', $pathInfo);
     }

@@ -444,40 +444,6 @@ class AuthManager
     }
 
     /**
-     * Get current logged user username
-     *
-     * @return string|null The username of the logged user or null if not found or invalid
-     */
-    public function getLoggedUsername(): ?string
-    {
-        // get current logged user token
-        $token = $this->getLoggedUserToken();
-
-        // check if token type is valid
-        if (!is_string($token)) {
-            $this->errorManager->handleError(
-                message: 'error to get logged user token: token type is not valid (must be string)',
-                code: Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
-
-        // get user repository by auth token
-        $user = $this->userManager->getUserByToken($token);
-
-        // check if user exist
-        if ($user == null) {
-            $this->errorManager->handleError(
-                message: 'error to get logged user username',
-                code: Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
-
-        // get username
-        $username = $user->getUsername();
-        return $username;
-    }
-
-    /**
      * Logout user from the system
      *
      * @return void
