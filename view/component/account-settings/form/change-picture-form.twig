@@ -61,14 +61,17 @@
                                 <label class="cursor-pointer inline-flex items-center px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 text-white rounded transition-all duration-200 border border-gray-600/50 hover:border-gray-500/50">
                                     <i class="fas fa-upload mr-3 text-blue-400"></i>
                                     <span>Choose Image File</span>
-                                    {{ form_row(profilePicChangeForm['profile-pic'], {
+                                    {{ form_widget(profilePicChangeForm['profile-pic'], {
+                                        'id': 'profile-pic-input',
                                         'attr': {
                                             'class': 'hidden',
-                                            'accept': 'image/jpeg,image/jpg,image/png,image/gif,image/webp',
-                                            'onchange': 'validateAndPreviewImage(this)'
+                                            'accept': 'image/jpeg,image/jpg,image/png,image/gif,image/webp'
                                         }
                                     }) }}
                                 </label>
+                            </div>
+                            <div class="mt-2 text-sm text-red-300 text-center space-y-1">
+                                {{ form_errors(profilePicChangeForm['profile-pic']) }}
                             </div>
                             <p class="text-gray-400 text-xs mt-2 text-center">Supported formats: JPG, PNG, GIF, WebP (max 5MB)</p>
                         </div>
@@ -85,39 +88,5 @@
 </div>
 
 {# IMAGE VALIDATION AND PREVIEW FUNCTION #}
-<script>
-    function validateAndPreviewImage(input) {
-        if (input.files && input.files[0]) {
-            const file = input.files[0]
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
-            const maxSize = 5 * 1024 * 1024 // 5MB in bytes
-
-            // check file type
-            if (!allowedTypes.includes(file.type)) {
-                alert('Please select a valid image file (JPG, PNG, GIF, or WebP).')
-                input.value = ''
-                document.getElementById('image-preview-container').style.display = 'none'
-                return
-            }
-
-            // check file size
-            if (file.size > maxSize) {
-                alert('File size must be less than 5MB.')
-                input.value = ''
-                document.getElementById('image-preview-container').style.display = 'none'
-                return
-            }
-
-            // show preview if validation passes
-            var reader = new FileReader()
-            reader.onload = function(e) {
-                document.getElementById('preview-image').setAttribute('src', e.target.result)
-                document.getElementById('image-preview-container').style.display = 'block'
-            }
-            reader.readAsDataURL(file)
-        } else {
-            document.getElementById('image-preview-container').style.display = 'none'
-        }
-    }
-</script>
+{{ encore_entry_script_tags('profile-image-preview-js') }}
 {% endblock %}

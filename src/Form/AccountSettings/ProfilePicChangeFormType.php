@@ -36,6 +36,7 @@ class ProfilePicChangeFormType extends AbstractType
             'label' => false,
             'multiple' => false,
             'mapped' => false,
+            'required' => false,
             'constraints' => new Sequentially([
                 new NotBlank(message: 'Please add picture file.'),
                 new File(
