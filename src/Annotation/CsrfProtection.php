@@ -10,6 +10,8 @@ use Attribute;
  * Attribute for controller methods that controls CSRF verification
  * Checked inside CsrfProtectionMiddleware when POST requests handled
  *
+ * Warning: this is used for disabling custom CSRF validation for forms because forms handle validation themselves
+ *
  * @package App\Annotation
  */
 #[Attribute(Attribute::TARGET_METHOD)]
