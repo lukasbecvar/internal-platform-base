@@ -1,11 +1,16 @@
 /** push notifications settings component */
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async () =>
+{
+    // -----------------------------
+    // ELEMENT REFERENCES
+    // -----------------------------
     let publicKey = null
-    
-    // get site elements
     const statusElement = document.getElementById('push-status')
     const subscribeButton = document.getElementById('subscribe-btn')
 
+    // -----------------------------
+    // UTILITY FUNCTIONS
+    // -----------------------------
     // convert Base64 URL to Uint8Array
     function urlBase64ToUint8Array(base64String) {
         const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -14,6 +19,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return new Uint8Array([...rawData].map(char => char.charCodeAt(0)))
     }
 
+    // -----------------------------
+    // SUBSCRIPTION REQUEST HANDLER
+    // -----------------------------
     // resubscribe to push notifications
     subscribeButton.addEventListener('click', async () => {
         console.log('Subscription button clicked.')
@@ -61,6 +69,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     })
 
+    // -----------------------------
+    // INITIAL SUBSCRIPTION STATUS CHECK
+    // -----------------------------
     // check subscription status
     try {
         // get VAPID public key

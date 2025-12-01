@@ -1,5 +1,9 @@
 /** profile photo view component */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () =>
+{
+    // -----------------------------
+    // GLOBAL DOMContentLoaded EVENT LISTENER
+    // -----------------------------
     const modals = [
         initProfileModal({
             modal: document.getElementById('profile-modal'),
@@ -25,6 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 })
 
+// -----------------------------
+// PROFILE MODAL INITIALIZATION
+// -----------------------------
 function initProfileModal({ modal, openTrigger, closeTrigger }) {
     if (!modal) {
         return null
@@ -47,6 +54,9 @@ function initProfileModal({ modal, openTrigger, closeTrigger }) {
     return modal
 }
 
+// -----------------------------
+// MODAL SHOW/HIDE HELPERS
+// -----------------------------
 function showModal(modal) {
     modal.classList.remove('hidden')
     modal.classList.add('flex')
@@ -57,6 +67,9 @@ function hideModal(modal) {
     modal.classList.add('hidden')
 }
 
+// -----------------------------
+// IP ADDRESS TOGGLE INITIALIZATION
+// -----------------------------
 function initIpToggle(ipShort, ipFull) {
     if (!ipShort || !ipFull) {
         return

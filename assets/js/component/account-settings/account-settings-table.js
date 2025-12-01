@@ -1,7 +1,9 @@
-/* account settings table component */
+/** account settings component */
 document.addEventListener('DOMContentLoaded', function()
 {
-    // get site elements
+    // -----------------------------
+    // API TOKEN VISIBILITY TOGGLE
+    // -----------------------------
     var tokenValueElement = document.getElementById('api-token-value')
     var tokenToggleButton = document.getElementById('api-token-toggle')
     if (!tokenValueElement || !tokenToggleButton) {
@@ -40,6 +42,9 @@ document.addEventListener('DOMContentLoaded', function()
         }
     })
 
+    // -----------------------------
+    // COPY TO CLIPBOARD FUNCTIONALITY
+    // -----------------------------
     // copy token to clipboard (on click)
     function copyTokenToClipboard(value) {
         if (!value) {

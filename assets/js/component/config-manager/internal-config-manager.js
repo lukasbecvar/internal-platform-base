@@ -1,6 +1,9 @@
-/* internal config manager component (handle reset to default popup) */
+/** internal config manager component */
 document.addEventListener('DOMContentLoaded', function()
 {
+    // -----------------------------
+    // RESET TO DEFAULT FUNCTIONALITY
+    // -----------------------------
     var resetButtons = document.querySelectorAll('.reset-button')
     var popupOverlay = document.getElementById('reset-popup-overlay')
     var cancelButton = document.getElementById('reset-cancel-button')
@@ -46,6 +49,9 @@ document.addEventListener('DOMContentLoaded', function()
             })
         }
 
+        // -----------------------------
+        // GLOBAL EVENT LISTENERS
+        // -----------------------------
         // escape closes popup
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {

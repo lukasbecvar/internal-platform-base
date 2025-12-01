@@ -1,5 +1,9 @@
-/* log manager raw message viewer */
-document.addEventListener('DOMContentLoaded', () => {
+/** log manager raw message viewer */
+document.addEventListener('DOMContentLoaded', () =>
+{
+    // -----------------------------
+    // ELEMENT REFERENCES
+    // -----------------------------
     const popup = document.getElementById('textPopup')
     const popupText = document.getElementById('popupText')
     const rawButtons = document.querySelectorAll('.view-raw-button')
@@ -9,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return
     }
 
+    // -----------------------------
+    // POPUP HELPERS
+    // -----------------------------
     const decodeInput = (input) => {
         const wrapper = document.createElement('div')
         wrapper.innerHTML = input ?? ''
@@ -32,6 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', handleEscKey)
     }
 
+    // -----------------------------
+    // EVENT LISTENERS
+    // -----------------------------
     rawButtons.forEach((button) => {
         button.addEventListener('click', () => {
             openPopup(decodeInput(button.getAttribute('data-fulltext')))

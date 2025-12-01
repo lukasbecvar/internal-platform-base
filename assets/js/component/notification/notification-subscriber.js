@@ -1,5 +1,9 @@
 /** push notifications subscriber functionality */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function()
+{
+    // -----------------------------
+    // NOTIFICATION ENABLEMENT CHECK
+    // -----------------------------
     // check if notifications are enabled on backend
     async function checkNotificationsEnabled() {
         const response = await fetch('/api/notifications/enabled')
@@ -12,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return false
     }
 
+    // -----------------------------
+    // SUBSCRIPTION WORKFLOW
+    // -----------------------------
     // subscribe user to push notifications
     async function subscribeUser() {
         const notificationsEnabled = await checkNotificationsEnabled()
@@ -65,6 +72,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // -----------------------------
+    // SERVER COMMUNICATION
+    // -----------------------------
     // send subscription to server
     async function sendSubscriptionToServer(subscription) {
         const response = await fetch('/api/notifications/subscribe', {
@@ -81,14 +91,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // convert Base64 URL to Uint8Array
-    function urlBase64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4)
-        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
-        const rawData = window.atob(base64)
-        return new Uint8Array([...rawData].map(char => char.charCodeAt(0)))
-    }
-
+    // -----------------------------
+    // SERVICE WORKER REGISTRATION
+    // -----------------------------
     // register service worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js', { scope: '/' }).then(() => {
@@ -96,5 +101,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }).catch((error) => {
             console.error('Service Worker registration failed:', error)
         })
+    }
+
+    // -----------------------------
+    // UTILITY
+    // -----------------------------
+    // convert Base64 URL to Uint8Array
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4)
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+        const rawData = window.atob(base64)
+        return new Uint8Array([...rawData].map(char => char.charCodeAt(0)))
     }
 })

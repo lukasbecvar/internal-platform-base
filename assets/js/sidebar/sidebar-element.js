@@ -1,6 +1,9 @@
-/* sidebar element functionality */
-document.addEventListener('DOMContentLoaded', function() {
-    // get elements
+/** sidebar element functionality */
+document.addEventListener('DOMContentLoaded', function()
+{
+    // -----------------------------
+    // ELEMENT DECLARATIONS
+    // -----------------------------
     const sidebar = document.getElementById('sidebar')
     const mainContent = document.getElementById('main-content')
     
@@ -11,6 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let touchEndY = 0
     let isHorizontalSwipe = true
 
+    // -----------------------------
+    // SWIPE DETECTION LOGIC
+    // -----------------------------
     // setup swipe detection for an element
     function setupSwipeDetection(element) {
         let touchedElement = null
@@ -59,6 +65,9 @@ document.addEventListener('DOMContentLoaded', function() {
         })
     }
 
+    // -----------------------------
+    // EVENT LISTENERS
+    // -----------------------------
     // setup swipe detection for main content
     setupSwipeDetection(mainContent)
 

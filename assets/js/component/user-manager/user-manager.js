@@ -1,6 +1,9 @@
-/* users manager component (handle delete, role update, ban, unban popup) */
+/** users manager component (handle delete, role update, ban, unban popup) */
 document.addEventListener('DOMContentLoaded', function()
 {
+    // -----------------------------
+    // DELETE USER FUNCTIONALITY
+    // -----------------------------
     // elements related to delete functionality
     var popupOverlay = document.getElementById('popup-overlay')
     var cancelButton = document.getElementById('cancel-button')
@@ -9,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function()
     var deleteButtons = document.querySelectorAll('.delete-button')
     var selectedForm = null
 
+    // -----------------------------
+    // ROLE UPDATE FUNCTIONALITY
+    // -----------------------------
     // elements related to role update functionality
     var roleUpdateForm = document.getElementById('role-update-form')
     var roleUpdateButtons = document.querySelectorAll('.role-update-button')
@@ -16,6 +22,9 @@ document.addEventListener('DOMContentLoaded', function()
     var roleUpdateCancelButton = document.getElementById('role-update-cancel-button')
     var roleUpdateSubmitButton = document.getElementById('role-update-submit-button')
 
+    // -----------------------------
+    // BAN USER FUNCTIONALITY
+    // -----------------------------
     // elements related to ban functionality
     var banForms = document.querySelectorAll('.ban-form')
     var banButtons = document.querySelectorAll('.ban-button')
@@ -25,6 +34,9 @@ document.addEventListener('DOMContentLoaded', function()
     var banConfirmButton = document.getElementById('ban-confirm-button')
     var selectedBanForm = null
 
+    // -----------------------------
+    // UNBAN USER FUNCTIONALITY
+    // -----------------------------
     // elements related to unban functionality
     var unbanForms = document.querySelectorAll('.unban-form')
     var unbanButtons = document.querySelectorAll('.unban-button')
@@ -33,6 +45,9 @@ document.addEventListener('DOMContentLoaded', function()
     var unbanConfirmButton = document.getElementById('unban-confirm-button')
     var selectedUnbanForm = null
 
+    // -----------------------------
+    // TOKEN REGENERATION FUNCTIONALITY
+    // -----------------------------
     // elements related to token regeneration functionality
     var tokenRegenerateForms = document.querySelectorAll('.token-regenerate-form')
     var tokenRegenerateButtons = document.querySelectorAll('.token-regenerate-button')
@@ -41,6 +56,9 @@ document.addEventListener('DOMContentLoaded', function()
     var tokenRegenerateConfirmButton = document.getElementById('token-regenerate-confirm-button')
     var selectedTokenRegenerateForm = null
     
+    // -----------------------------
+    // API ACCESS FUNCTIONALITY
+    // -----------------------------
     // elements related to api access functionality
     var apiAccessForms = document.querySelectorAll('.api-access-form')
     var apiAccessButtons = document.querySelectorAll('.api-access-button')
@@ -53,6 +71,9 @@ document.addEventListener('DOMContentLoaded', function()
     var apiAccessConfirmIcon = apiAccessConfirmButton ? apiAccessConfirmButton.querySelector('i') : null
     var selectedApiAccessForm = null
 
+    // -----------------------------
+    // BAN WORKFLOW
+    // -----------------------------
     // show the ban confirmation popup
     function showBanPopup() {
         banPopupOverlay.classList.remove('hidden')
@@ -88,6 +109,9 @@ document.addEventListener('DOMContentLoaded', function()
         selectedBanForm = null
     })
 
+    // -----------------------------
+    // UNBAN WORKFLOW
+    // -----------------------------
     // show the unban confirmation popup
     function showUnbanPopup() {
         unbanPopupOverlay.classList.remove('hidden')
@@ -118,6 +142,9 @@ document.addEventListener('DOMContentLoaded', function()
         selectedUnbanForm = null
     })
 
+    // -----------------------------
+    // API ACCESS WORKFLOW
+    // -----------------------------
     // show api access confirmation popup
     function showApiAccessPopup(username, action) {
         apiAccessActionLabel.textContent = action === 'enable' ? 'enable' : 'disable'
@@ -159,6 +186,9 @@ document.addEventListener('DOMContentLoaded', function()
         selectedApiAccessForm = null
     })
 
+    // -----------------------------
+    // TOKEN REGENERATION WORKFLOW
+    // -----------------------------
     // show the token regeneration confirmation popup
     function showTokenRegeneratePopup() {
         tokenRegeneratePopupOverlay.classList.remove('hidden')
@@ -189,6 +219,9 @@ document.addEventListener('DOMContentLoaded', function()
         selectedTokenRegenerateForm = null
     })
 
+    // -----------------------------
+    // ROLE UPDATE WORKFLOW
+    // -----------------------------
     // show the role update popup with user data
     function showRoleUpdatePopup(username, currentRole, userId) {
         document.getElementById('role-update-username').textContent = username
@@ -236,6 +269,9 @@ document.addEventListener('DOMContentLoaded', function()
         }
     })
 
+    // -----------------------------
+    // DELETE WORKFLOW
+    // -----------------------------
     // event listeners to each delete button
     deleteButtons.forEach(function(button, index) {
         button.addEventListener('click', function(event) {
@@ -257,6 +293,9 @@ document.addEventListener('DOMContentLoaded', function()
         popupOverlay.classList.add('hidden')
     })
 
+    // -----------------------------
+    // GLOBAL EVENT LISTENERS / UTILITIES
+    // -----------------------------
     // event listener for the 'Escape' key to close all popups
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
