@@ -30,7 +30,7 @@ The complete stack for development is in Docker Compose, including PHP, Node, an
 
 ## Requirements
 #### Software
-* PHP 8.4 and compatible web server
+* PHP 8.5 and compatible web server
 * MySQL 8 or higher
 * Composer
 * NPM
