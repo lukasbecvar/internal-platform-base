@@ -70,8 +70,8 @@ class EscapeRequestDataMiddlewareTest extends TestCase
         $this->middleware->onKernelRequest($event);
 
         // assert response
-        $this->assertEquals('user@example.com', $request->get('email'));
-        $this->assertEquals('&lt;p&gt;Hello, World!&lt;/p&gt;', $request->get('message'));
-        $this->assertEquals('&lt;script&gt;alert(&quot;XSS Attack!&quot;);&lt;/script&gt;', $request->get('name'));
+        $this->assertEquals('user@example.com', $request->request->get('email'));
+        $this->assertEquals('&lt;p&gt;Hello, World!&lt;/p&gt;', $request->request->get('message'));
+        $this->assertEquals('&lt;script&gt;alert(&quot;XSS Attack!&quot;);&lt;/script&gt;', $request->request->get('name'));
     }
 }
