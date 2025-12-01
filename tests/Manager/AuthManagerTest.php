@@ -455,6 +455,9 @@ class AuthManagerTest extends TestCase
         // expect session set
         $this->sessionUtilMock->expects($this->exactly(2))->method('setSession');
 
+        // expect session id regeneration
+        $this->sessionUtilMock->expects($this->once())->method('regenerateSession');
+
         // expect cookie set
         $this->cookieUtilMock->expects($this->once())->method('set')->with(
             'user-token',
